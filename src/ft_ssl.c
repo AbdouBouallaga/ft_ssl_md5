@@ -65,15 +65,17 @@ int md5(char *str)
     char *buffer = (char *)malloc(sizeof(char) * newlen+(64/8));
     ft_bzero(buffer, newlen);
     ft_memcpy(buffer, str, len);
+    printf("64 bit l: ");
     // ft_memcpy(buffer+newlen, *len, 8);
     int i = 0;
     int j = 0;
     int p = 63;
     while (1){
         // printf("2^%d: %llu\n",p, pow(2,p));
-        if(pow(2,p) == messageBits_bak){
+        if(pow(2,p) <= messageBits_bak){
             printf("1");
-            buffer[newlen+j] = buffer[newlen+j]|(1<<p);
+            buffer[newlen+j] = buffer[newlen+j]|(1<<p-(7-j));
+            messageBits_bak -= pow(2,p);
             // len -= pow(2,p);
         }
         else{
