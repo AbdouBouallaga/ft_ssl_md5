@@ -1,5 +1,6 @@
 NAME = ft_ssl
-SRC = ./src/ft_ssl.c
+SRC = ./src/ft_ssl.c\
+		./src/ft_md5.c
 OBJ	= $(SRC:.c=.o)
 # CFLAGS	=-Wall -Wextra -Werror
 CFLAGS	=
@@ -13,8 +14,7 @@ $(FT_LIB):
 	@make -C  ./libft
 
 $(OBJ): $(SRC) $(P_HEADER)
-	gcc $(CFLAGS) -c $(SRC) -o $(OBJ)
-	
+
 
 $(NAME): $(OBJ)
 	gcc $(CFLAGS) -o $(NAME) $(OBJ) $(FT_LIB)
