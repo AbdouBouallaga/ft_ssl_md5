@@ -289,6 +289,7 @@ int md5(char *str)
     u_int32_t B = 0xefcdab89;
     u_int32_t C = 0x98badcfe;
     u_int32_t D = 0x10325476;
+    printf("A: %x\nB: %x\nC: %x\nD: %x\n",A,B,C,D);
     // Initialize hash value
     u_int32_t aa = A;
     u_int32_t bb = B;
@@ -360,7 +361,7 @@ int md5(char *str)
     printf("\n");
     buffer[len] = 0x80;
     // printf("newmessageBits: %llu\n",messageBits);
-    // displaybits(buffer, newlen+8); 
+    displaybits(buffer, newlen+8); 
     // Process message in 512 bit (16-word) blocks
     printf("\n");
     // u_int32_t *m = (u_int32_t)malloc(sizeof(u_int32_t) * 16);
@@ -384,6 +385,7 @@ int md5(char *str)
     }
     printf("\n\n");
     // print the hash value
+    printf("Hash value: %08x%08x%08x%08x\n", aa+A, bb+B, cc+C, dd+D);
     printf("Hash value: %08x%08x%08x%08x\n", aa, bb, cc, dd);
     return(0);
 }
