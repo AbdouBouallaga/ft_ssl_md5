@@ -16,44 +16,11 @@ u_int32_t K[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0
     0x2ad7d2bb, 0xeb86d391};
 
 // From https://opensource.apple.com/source/ppp/ppp-37/ppp/pppd/md5.c.auto.html //
-/* F, G, H and I are basic MD5 functions */
-#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
-#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
-#define H(x, y, z) ((x) ^ (y) ^ (z))
-#define I(x, y, z) ((y) ^ ((x) | (~z)))
-
-// #ifdef __STDC__
-// #define UL(x)	x##U
-// #else
-#define UL(x)	x
-// #endif
 
 /* ROTATE_LEFT rotates x left n bits */
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+//end of apple code
 
-/* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4 */
-/* Rotation is separate from addition to prevent recomputation */
-#define FF(a, b, c, d, x, s, ac) \
-  {(a) += F ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-   (a) = ROTATE_LEFT ((a), (s)); \
-   (a) += (b); \
-  }
-#define GG(a, b, c, d, x, s, ac) \
-  {(a) += G ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-   (a) = ROTATE_LEFT ((a), (s)); \
-   (a) += (b); \
-  }
-#define HH(a, b, c, d, x, s, ac) \
-  {(a) += H ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-   (a) = ROTATE_LEFT ((a), (s)); \
-   (a) += (b); \
-  }
-#define II(a, b, c, d, x, s, ac) \
-  {(a) += I ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-   (a) = ROTATE_LEFT ((a), (s)); \
-   (a) += (b); \
-  }
-// end //
 void displaybits(char *x, unsigned int len)
 {
     unsigned int i;
@@ -167,6 +134,7 @@ void process(u_int32_t *M)
             printf("\n");
             deb = 0;
         }
+        // printf("%d\n", i);
     }
     A0 += A;
     B0 += B;
@@ -179,13 +147,8 @@ void process(u_int32_t *M)
 
 int md5(char *str)
 {
-    // declare MD5 constants
-    // Initialize hash value
-    // Append padding bits and Append length
-    // unsigned int len;
     unsigned long long len;
     unsigned long long temp;
-    // u_int64_t len;
     unsigned long long messageBits;
     unsigned long long messageBits_bak;
 
@@ -220,22 +183,14 @@ int md5(char *str)
     int j = 0; // navigate through the buffer blocks
     int bit = 8; // set the bits in the buffer blocks
     u_int64_t pow;
-    while (0){
-        // printf("2^%d: %llu\n",p, pow(2,p));
+    while (1){ // set the 64 bits value of len in bits
         pow = power(2,p);
         if(pow <= messageBits_bak){
-            // printf("1 | ");
             buffer[newlen+j] = buffer[newlen+j]|(1<<bit); // set the bit in the buffer to 1
             messageBits_bak -= pow; // subtract the value of the bit from the messageBits
-            // len -= pow(2,p);
         }
-        // else{
-        //     printf("0 | ");
-        // }
-        // printf("j = %d, bit = %d\n",j,bit);
         i++;
         if (i == 8){
-            // printf("\n");
             i = 0;
             bit = 8;
             j++;
@@ -246,19 +201,10 @@ int md5(char *str)
             break;
     }
     printf("\n");
-    printf("\n");
     buffer[len] = 0x80;
-    buffer[len+1] = '\0';
-    printf("%s\n",buffer);
-    buffer[newlen+7] = (u_int64_t)messageBits;
-    printf("\n");
-    displaybits(&buffer[newlen], 8);
-    printf("\n");
-    // printf("newmessageBits: %llu\n",messageBits);
     displaybits(buffer, newlen+8); 
     // Process message in 512 bit (16-word) blocks
     printf("\n");
-    // u_int32_t *m = (u_int32_t)malloc(sizeof(u_int32_t) * 16);
     u_int32_t m[16];
     i = 0;
     j = 0;
