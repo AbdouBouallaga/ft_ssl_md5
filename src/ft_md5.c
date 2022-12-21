@@ -95,45 +95,45 @@ void process(u_int32_t *M)
             F = (D ^ (B & (C ^ D)));
             g = i;
         }
-        if (i == 15){
-            deb=1;
-        }
+        // if (i == 15){
+        //     deb=1;
+        // }
         if (i > 15 && i <= 31){
             // (16 ≤ i ≤ 31): F := C xor (D and (B xor C))
             // F = (((D) & (B)) | ((~D) & (C)));
             F = (C ^ (D & (B ^ C)));
             g = ((5*i)+1) % 16;
         }
-        if (i == 31){
-            deb=1;
-        }
+        // if (i == 31){
+        //     deb=1;
+        // }
         if (i > 31 && i <= 47){
             F = ((B) ^ (C) ^ (D));
             g = ((3*i)+ 5) % 16;
         }
-        if (i == 47){
-            deb=1;
-        }
+        // if (i == 47){
+        //     deb=1;
+        // }
         if (i > 47) {
             F = ((C) ^ ((B) | (~D)));
             g = (7*i) % 16;
         }
-        if (i == 63){
-            deb = 1;
-        }
+        // if (i == 63){
+        //     deb = 1;
+        // }
         F = F + A + (u_int32_t)K[i] + (u_int32_t)M[g];
         A = D;
         D = C;
         C = B;
         B = B + ROTATE_LEFT((F),(s(i)));
-        if (deb){
-            printf("A: %d\n", A);
-            printf("B: %d\n", B);
-            printf("C: %d\n", C);
-            printf("D: %d\n", D);
-            printf("\n");
-            deb = 0;
-        }
+        // if (deb){
+        //     printf("A: %d\n", A);
+        //     printf("B: %d\n", B);
+        //     printf("C: %d\n", C);
+        //     printf("D: %d\n", D);
+        //     printf("\n");
+        //     deb = 0;
+        // }
         // printf("%d\n", i);
     }
     A0 += A;
@@ -172,8 +172,9 @@ int md5(char *str)
         printf("Error: malloc failed");
         return 1;
     }
-    ft_bzero(buffer, newlen);
+    ft_bzero(buffer, newlen+8);
     ft_memcpy(buffer, str, len);
+    buffer[len] = 0x80; // 10000000
     // printf(">>>> %s \n", buffer);
     // printf("64 bit l: \n");
     // ft_memcpy(buffer+newlen, *len, 8);
@@ -186,7 +187,7 @@ int md5(char *str)
     while (1){ // set the 64 bits value of len in bits
         pow = power(2,p);
         if(pow <= messageBits_bak){
-            buffer[newlen+j] = buffer[newlen+j]|(1<<bit); // set the bit in the buffer to 1
+            buffer[newlen+7-j] = buffer[newlen+7-j]|(1<<bit); // set the bit in the buffer to 1
             messageBits_bak -= pow; // subtract the value of the bit from the messageBits
         }
         i++;
@@ -200,11 +201,10 @@ int md5(char *str)
         if (p == -1)
             break;
     }
-    printf("\n");
-    buffer[len] = 0x80;
-    displaybits(buffer, newlen+8); 
+    // printf("\n");
+    // displaybits(buffer, newlen+8);
     // Process message in 512 bit (16-word) blocks
-    printf("\n");
+    // printf("\n");
     u_int32_t m[16];
     i = 0;
     j = 0;
@@ -217,16 +217,20 @@ int md5(char *str)
             ft_memcpy(&m[j], buffer+i+(j*4), 4);
         }
         j = -1;
-        while (++j < 16){
-            printf("%08x ", m[j]);
-        }
-        printf("\n");
+        // while (++j < 16){
+        //     printf("%08x ", m[j]);
+        // }
+        // printf("\n");
         process(m);
         i+=64;
     }
-    printf("\n\n");
+    // printf("\n\n");
     // print the hash value
-    printf("Hash value: %08x%08x%08x%08x\n", A0, B0, C0, D0);
+    // printf("Hash value: %08x%08x%08x%08x\n", A0, B0, C0, D0);
+    printf("MD5 (\"%s\") = %02x%02x%02x%02x", str,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
+    printf("%02x%02x%02x%02x", B0&0xff, (B0>>8)&0xff, (B0>>16)&0xff, (B0>>24)&0xff);
+    printf("%02x%02x%02x%02x", C0&0xff, (C0>>8)&0xff, (C0>>16)&0xff, (C0>>24)&0xff);
+    printf("%02x%02x%02x%02x\n", D0&0xff, (D0>>8)&0xff, (D0>>16)&0xff, (D0>>24)&0xff);
     // printf("Hash value: %08x%08x%08x%08x\n", aa, bb, cc, dd);
     return(0);
 }
