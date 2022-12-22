@@ -154,17 +154,17 @@ int md5(char *str)
 
 
     len = ft_strlen(str);
-    printf("len: %llu\n",len);
+    // printf("len: %llu\n",len);
     messageBits = len * 8;
     messageBits_bak = messageBits;
-    printf("messageBits: %llu\n",messageBits);
+    // printf("messageBits: %llu\n",messageBits);
     // displaybits((char *)str, len);
     unsigned int newlen = len;
     while (newlen % 64 != 56)
     {
         newlen++;
     }
-    printf("newlen: %d\n",newlen);
+    // printf("newlen: %d\n",newlen);
     messageBits = newlen * 8;
     char *buffer = (char *)malloc(sizeof(char) * newlen+(8));
     if (buffer == NULL)
