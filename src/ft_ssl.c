@@ -23,7 +23,7 @@ void usage(char *str)
     
 // }
 #include <sys/select.h>
-void md5PREP(int ac ,char **av){
+void RUN(int ac ,char **av){
     int i = 2;
     int queueLen = 0;
 
@@ -39,6 +39,18 @@ void md5PREP(int ac ,char **av){
     FD_SET(0, &readfds);
     int ret = select(nfds, &readfds, NULL, NULL, &tv);
     // printf("stdin %d\n", ret);
+    while(av[i] && av[i][0] == '-' && i < ac){
+        if (av[i][1] == 'q'){
+            g_flags.q = 1;
+        }
+        else if (av[i][1] == 'r'){
+            g_flags.r = 1;
+        }
+        else if (av[i][1] == 'p'){
+            g_flags.p = 1;
+        }
+        i++;
+    }
     if (ret != 0){
         int continueReaning = 1;
         while (continueReaning)
@@ -56,30 +68,26 @@ void md5PREP(int ac ,char **av){
         queue = realloc(queue, (queueLen+2) * sizeof(char *));
         queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
         ft_strcpy(queue[queueLen], buffer);
-        // if (g_flags.p == 1){
-        //     queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(buffer)+3));
-        //     ft_strcpy(queue[queueLen+1], "\"");
-        //     ft_strcat(queue[queueLen+1], buffer);
-        //     ft_strcat(queue[queueLen+1], "\"" );
-        // }
-        // else {
+        if (g_flags.p == 1){
+            queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(buffer)+3));
+            ft_strcpy(queue[queueLen+1], "\"");
+            ft_strcat(queue[queueLen+1], buffer);
+            ft_strcat(queue[queueLen+1], "\"" );
+        }
+        else {
             queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen("stdin")+1));
             ft_strcpy(queue[queueLen+1], "stdin");
             ft_strcat(queue[queueLen+1], "\0");
-        // }
+        }
+        if (g_flags.p == 1 && g_flags.q == 1){
+            write(1, buffer, ft_strlen(buffer));
+            write(1, "\n", 1);
+        }
         queueLen+=2;
     }
+    i = 2;
     while(av[i] && av[i][0] == '-' && i < ac){
-        if (av[i][1] == 'q'){
-            g_flags.q = 1;
-        }
-        else if (av[i][1] == 'r'){
-            g_flags.r = 1;
-        }
-        else if (av[i][1] == 'p'){
-            g_flags.p = 1;
-        }
-        else if (av[i][1] == 's'){
+        if (av[i][1] == 's'){
             // printf("string len: %d\n", ft_strlen(av[i+1]));
             // printf("queue len: %d\n", queueLen);
             queue = realloc(queue, (queueLen+2) * sizeof(char *));
@@ -129,7 +137,9 @@ void md5PREP(int ac ,char **av){
     i = 0;
     // printf("queueLen: %d\n", queueLen);
     while (i < queueLen){
-        md5(queue[i], queue[i+1]);
+        if (g_flags.algo == 1){
+            md5(queue[i], queue[i+1]);
+        }
         i+=2;
     }
 }
@@ -146,8 +156,11 @@ int main(int ac, char **av)
 		usage(av[0]);
 	}
     if (ft_strcmp(av[1], "md5") == 0)
-        md5PREP(ac, av);
+        g_flags.algo = 1;
+    else if (ft_strcmp(av[1], "sha256") == 0)
+        g_flags.algo = 2;
     else
         usage(av[0]);
+    RUN(ac, av);
     return(0);
 } 

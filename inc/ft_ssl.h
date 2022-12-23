@@ -8,6 +8,7 @@
 
 struct flags
 {
+    int algo;
     int p;
     int q;
     int r;
