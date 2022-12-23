@@ -49,6 +49,9 @@ void RUN(int ac ,char **av){
         else if (av[i][1] == 'p'){
             g_flags.p = 1;
         }
+        else if (av[i][1] == 'r'){
+            g_flags.r = 1;
+        }
         i++;
     }
     if (ret != 0){
@@ -135,11 +138,15 @@ void RUN(int ac ,char **av){
         i++;
     }
     i = 0;
-    // printf("queueLen: %d\n", queueLen);
+    int selector = 0;
+    int offset = 1;
+    if (g_flags.r == 1){
+        selector = queueLen-2;
+        offset = -1;
+    }
     while (i < queueLen){
-        if (g_flags.algo == 1){
-            md5(queue[i], queue[i+1]);
-        }
+        if (g_flags.algo == 1)
+            md5(queue[abs(selector - i)], queue[abs(selector - (i+offset))]);
         i+=2;
     }
 }
