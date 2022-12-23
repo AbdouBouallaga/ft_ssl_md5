@@ -147,6 +147,8 @@ void RUN(int ac ,char **av){
     while (i < queueLen){
         if (g_flags.algo == 1)
             md5(queue[abs(selector - i)], queue[abs(selector - (i+offset))]);
+        if (g_flags.algo == 2)
+            sha256(queue[abs(selector - i)], queue[abs(selector - (i+offset))]);
         i+=2;
     }
 }

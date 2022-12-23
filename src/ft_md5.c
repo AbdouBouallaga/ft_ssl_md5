@@ -20,47 +20,8 @@ u_int32_t K[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0
 // From https://opensource.apple.com/source/ppp/ppp-37/ppp/pppd/md5.c.auto.html //
 
 /* ROTATE_LEFT rotates x left n bits */
-#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+// #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 //end of apple code
-
-void displaybits(char *x, unsigned int len)
-{
-    unsigned int i;
-    unsigned int j;
-
-    i = 0;
-    j = 0;
-    while (i < len)
-    {
-        j = 7;
-        while (1)
-        {
-            if (x[i] & (1 << j))
-                printf("1");
-            else
-                printf("0");
-            j--;
-            if (j == -1)
-                break;
-        }
-        i++;
-        printf(" ");
-    }
-    printf("\n");
-}
-
-unsigned long long power(int i, int j)
-{
-    unsigned long long result;
-
-    result = 1;
-    while (j > 0)
-    {
-        result *= i;
-        j--;
-    }
-    return (result);
-}
 
 int s(i){
     int a[4] = {7, 12, 17, 22};
@@ -80,12 +41,8 @@ int s(i){
     return(x[i%4]);
 }
 
-void process(u_int32_t *M)
+static void process(u_int32_t *M)
 {
-    A0 = 0x67452301;
-    B0 = 0xefcdab89;
-    C0 = 0x98badcfe;
-    D0 = 0x10325476;
     u_int32_t A = A0;
     u_int32_t B = B0;
     u_int32_t C = C0;
@@ -131,7 +88,7 @@ void process(u_int32_t *M)
         A = D;
         D = C;
         C = B;
-        B = B + ROTATE_LEFT((F),(s(i)));
+        B = B + ROTL((F),(s(i)));
         // if (deb){
         //     printf("A: %d\n", A);
         //     printf("B: %d\n", B);
@@ -151,22 +108,12 @@ void process(u_int32_t *M)
 
 }
 
-void    hex_dump(int ch)
-{
-    int a = ch/16;
-    int i = -1;
-    while (++i < 2){
-        if (a < 10)
-            a = '0' + a;
-        else
-            a = 'a' + a - 10;
-        write(1, &a, 1);
-        a = ch%16;
-    }
-}
-
 int md5(char *str, char *title)
 {
+    A0 = 0x67452301;
+    B0 = 0xefcdab89;
+    C0 = 0x98badcfe;
+    D0 = 0x10325476;
     unsigned long long len;
     unsigned long long temp;
     unsigned long long messageBits;

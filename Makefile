@@ -1,6 +1,8 @@
 NAME = ft_ssl
 SRC = ./src/ft_ssl.c\
-		./src/ft_md5.c
+		./src/ft_md5.c\
+		./src/ft_sha256.c\
+		./src/tools.c
 OBJ	= $(SRC:.c=.o)
 # CFLAGS	=-Wall -Wextra -Werror
 CFLAGS	=
