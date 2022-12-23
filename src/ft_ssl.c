@@ -1,5 +1,7 @@
 #include "../inc/ft_ssl.h"
 
+struct flags g_flags;
+
 void usage(char *str)
 {
     printf("usage: %s [algo] [-s string] [files ...]", str);
@@ -17,40 +19,128 @@ void usage(char *str)
 //     md5(buffer);
 // }
 
-void    stdinread(){
+// void    stdinread(){
     
-}
+// }
 #include <sys/select.h>
 void md5PREP(int ac ,char **av){
     int i = 2;
+    int queueLen = 0;
+
+    char **queue = (char **)malloc(sizeof(char *));
     char str[16];
+    ft_bzero(str, 1);
     char *buffer;
+    int bufflen = 0;
     struct timeval tv = {0, 100000};
-    // fd_set fds;
-    // FD_ZERO(&fds);
-    // FD_SET(0, &fds);
-    int r = select(1, (fd_set *)str, NULL, NULL, &tv); //wtf
-    if (r > 0){
-        while (read(0, str, 16) > 0)
+    fd_set readfds;
+    int nfds = 1;
+    FD_ZERO(&readfds);
+    FD_SET(0, &readfds);
+    int ret = select(nfds, &readfds, NULL, NULL, &tv);
+    // printf("stdin %d\n", ret);
+    if (ret != 0){
+        int continueReaning = 1;
+        while (continueReaning)
         {
-            buffer = ft_strjoin(buffer, str);
+            continueReaning = read(0, str, 1);
+            buffer = (char *)realloc(buffer, sizeof(char)*(ft_strlen(str) + bufflen));
+            if (buffer != NULL){
+                ft_strcat(buffer, str);
+                bufflen += continueReaning;
+                // printf("buffer len: %d\n", bufflen);
+            }
         }
-        buffer[ft_strlen(buffer) - 1] = '\0';
-        md5(buffer);
+        buffer[bufflen - 1] = '\0';
+        // printf("buffer len: %d\n", ft_strlen(buffer));
+        queue = realloc(queue, (queueLen+2) * sizeof(char *));
+        queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
+        ft_strcpy(queue[queueLen], buffer);
+        // if (g_flags.p == 1){
+        //     queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(buffer)+3));
+        //     ft_strcpy(queue[queueLen+1], "\"");
+        //     ft_strcat(queue[queueLen+1], buffer);
+        //     ft_strcat(queue[queueLen+1], "\"" );
+        // }
+        // else {
+            queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen("stdin")+1));
+            ft_strcpy(queue[queueLen+1], "stdin");
+            ft_strcat(queue[queueLen+1], "\0");
+        // }
+        queueLen+=2;
     }
     while(av[i] && av[i][0] == '-' && i < ac){
-        if (av[i][1] == 's'){
-            md5(av[i+1]);
+        if (av[i][1] == 'q'){
+            g_flags.q = 1;
         }
-        if (av[i][1] == 'p'){
-            stdinread();
+        else if (av[i][1] == 'r'){
+            g_flags.r = 1;
+        }
+        else if (av[i][1] == 'p'){
+            g_flags.p = 1;
+        }
+        else if (av[i][1] == 's'){
+            // printf("string len: %d\n", ft_strlen(av[i+1]));
+            // printf("queue len: %d\n", queueLen);
+            queue = realloc(queue, (queueLen+2) * sizeof(char *));
+            queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(av[i+1]));
+            ft_strcpy(queue[queueLen], av[i+1]);
+            queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(av[i+1])+3));
+            ft_strcpy(queue[queueLen+1], "\"");
+            ft_strcat(queue[queueLen+1], av[i+1]);
+            ft_strcat(queue[queueLen+1], "\"\0");
+            i++;
+            queueLen+=2;
         }
         i++;
     }
+    // generated
+    // printf("ac %d\n", ac);
+    // printf("i %d\n", i);
+    while (i < ac){
+        int fd = open(av[i], O_RDONLY);
+        if (fd == -1){
+            printf("ft_ssl: %s: No such file or directory\n", av[i]);
+            exit(1);
+        }
+        int continueReaning = 1;
+        while (continueReaning)
+        {
+            continueReaning = read(fd, str, 1);
+            buffer = (char *)realloc(buffer, sizeof(char)*(ft_strlen(str) + bufflen));
+            if (buffer != NULL){
+                ft_strcat(buffer, str);
+                bufflen += continueReaning;
+                // printf("buffer len: %d\n", bufflen);
+            }
+        }
+        buffer[bufflen - 1] = '\0';
+        // printf("buffer len: %d\n", ft_strlen(buffer));
+        queue = realloc(queue, (queueLen+2) * sizeof(char *));
+        // printf("buffer %s", buffer);
+        queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
+        ft_strcpy(queue[queueLen], buffer);
+        queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(av[i])+1));
+        ft_strcpy(queue[queueLen+1], av[i]);
+        ft_strcat(queue[queueLen+1], "\0");
+        queueLen+=2;
+        i++;
+    }
+    i = 0;
+    // printf("queueLen: %d\n", queueLen);
+    while (i < queueLen){
+        md5(queue[i], queue[i+1]);
+        i+=2;
+    }
 }
+
+
 
 int main(int ac, char **av)
 {
+    g_flags.p = 0;
+    g_flags.q = 0;
+    g_flags.r = 0;
     if(ac < 2)
 	{
 		usage(av[0]);

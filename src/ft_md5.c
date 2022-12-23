@@ -1,9 +1,11 @@
 #include "../inc/ft_ssl.h"
 
-u_int32_t A0 = 0x67452301;
-u_int32_t B0 = 0xefcdab89;
-u_int32_t C0 = 0x98badcfe;
-u_int32_t D0 = 0x10325476;
+extern struct flags g_flags;
+
+u_int32_t A0;
+u_int32_t B0;
+u_int32_t C0;
+u_int32_t D0;
 
 u_int32_t K[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a,\
     0xa8304613, 0xfd469501, 0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193,\
@@ -80,6 +82,10 @@ int s(i){
 
 void process(u_int32_t *M)
 {
+    A0 = 0x67452301;
+    B0 = 0xefcdab89;
+    C0 = 0x98badcfe;
+    D0 = 0x10325476;
     u_int32_t A = A0;
     u_int32_t B = B0;
     u_int32_t C = C0;
@@ -145,7 +151,21 @@ void process(u_int32_t *M)
 
 }
 
-int md5(char *str)
+void    hex_dump(int ch)
+{
+    int a = ch/16;
+    int i = -1;
+    while (++i < 2){
+        if (a < 10)
+            a = '0' + a;
+        else
+            a = 'a' + a - 10;
+        write(1, &a, 1);
+        a = ch%16;
+    }
+}
+
+int md5(char *str, char *title)
 {
     unsigned long long len;
     unsigned long long temp;
@@ -224,13 +244,36 @@ int md5(char *str)
         process(m);
         i+=64;
     }
-    // printf("\n\n");
-    // print the hash value
-    // printf("Hash value: %08x%08x%08x%08x\n", A0, B0, C0, D0);
-    printf("MD5 (\"%s\") = %02x%02x%02x%02x", str,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
-    printf("%02x%02x%02x%02x", B0&0xff, (B0>>8)&0xff, (B0>>16)&0xff, (B0>>24)&0xff);
-    printf("%02x%02x%02x%02x", C0&0xff, (C0>>8)&0xff, (C0>>16)&0xff, (C0>>24)&0xff);
-    printf("%02x%02x%02x%02x\n", D0&0xff, (D0>>8)&0xff, (D0>>16)&0xff, (D0>>24)&0xff);
-    // printf("Hash value: %08x%08x%08x%08x\n", aa, bb, cc, dd);
+
+    // printf("MD5 (\"%s\") = %02x%02x%02x%02x", str,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
+    // printf("%02x%02x%02x%02x", B0&0xff, (B0>>8)&0xff, (B0>>16)&0xff, (B0>>24)&0xff);
+    // printf("%02x%02x%02x%02x", C0&0xff, (C0>>8)&0xff, (C0>>16)&0xff, (C0>>24)&0xff);
+    // printf("%02x%02x%02x%02x\n", D0&0xff, (D0>>8)&0xff, (D0>>16)&0xff, (D0>>24)&0xff);
+    
+    // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
+    if (g_flags.q != 1){
+        write(1, "MD5 (", 5);
+        write(1, title, ft_strlen(title));
+        write(1, ") = ", 5);
+    }
+    int rep = 0;
+    u_int32_t ptr = A0;
+    while (rep < 16){
+        u_int8_t buff = ptr&0xff;
+        hex_dump(buff);
+        ptr = ptr>>8;
+        rep++;
+        if (rep % 4 == 0){
+            if (rep == 4)
+                ptr = B0;
+            if (rep == 8)
+                ptr = C0;
+            if (rep == 12)
+                ptr = D0;
+        }
+    }
+    write(1, "\n", 1);
+    // u_int8_t buff = A0&0xff;
+    // hex_dump(buff);
     return(0);
 }
