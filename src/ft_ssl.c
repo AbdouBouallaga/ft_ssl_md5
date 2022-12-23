@@ -28,8 +28,8 @@ void RUN(int ac ,char **av){
     int queueLen = 0;
 
     char **queue = (char **)malloc(sizeof(char *));
-    char str[16];
-    ft_bzero(str, 1);
+    char str[2];
+    ft_bzero(str, 2);
     char *buffer;
     int bufflen = 0;
     struct timeval tv = {0, 100000};
@@ -67,7 +67,7 @@ void RUN(int ac ,char **av){
             }
         }
         buffer[bufflen - 1] = '\0';
-        // printf("buffer len: %d\n", ft_strlen(buffer));
+        // printf("buffer len: %d\n", bufflen);
         queue = realloc(queue, (queueLen+2) * sizeof(char *));
         queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
         ft_strcpy(queue[queueLen], buffer);

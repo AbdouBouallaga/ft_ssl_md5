@@ -57,7 +57,7 @@ static void process(u_int32_t *w)
     u_int32_t maj;
     u_int32_t temp2;
 
-    u_int8_t i = 15;
+    u_int8_t i = 16;
     while (++i < 64){
         s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
         s1 = (ROTR(w[i-2],17) ^ ROTR(w[i-2], 19) ^ (w[i-2] >> 10));
@@ -140,7 +140,7 @@ int sha256(char *str, char *title)
     while (1){ // set the 64 bits value of len in bits
         pow = power(2,p);
         if(pow <= messageBits_bak){
-            buffer[newlen+7-j] = buffer[newlen+7-j]|(1<<bit); // set the bit in the buffer to 1
+            buffer[newlen+j] = buffer[newlen+j]|(1<<bit); // set the bit in the buffer to 1
             messageBits_bak -= pow; // subtract the value of the bit from the messageBits
         }
         i++;
@@ -154,24 +154,26 @@ int sha256(char *str, char *title)
         if (p == -1)
             break;
     }
-    // printf("\n");
+    printf("\n");
+    printf("\n");
     // displaybits(buffer, newlen+8);
     // Process message in 512 bit (16-word) blocks
-    // printf("\n");
+    printf("\n");
     u_int32_t m[64];
     i = 0;
     j = 0;
     int copy;
     int a,b;
     while(i < newlen+8){
-        ft_bzero(m, 64);
+        // ft_bzero(m, 64);
         j = -1;
         while (++j < 16){
             // m[j] = buffer[i+(j*4)];
             ft_memcpy(&m[j], buffer+i+(j*4), 4);
         }
-        j = -1;
-        // while (++j < 16){
+        displaybits(m, 16);
+        // j = -1;
+        // while (++j < 64){
         //     printf("%08x ", m[j]);
         // }
         // printf("\n");
@@ -179,17 +181,21 @@ int sha256(char *str, char *title)
         i+=64;
     }
 
-    // printf("MD5 (\"%s\") = %02x%02x%02x%02x", str,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
-    // printf("%02x%02x%02x%02x", B0&0xff, (B0>>8)&0xff, (B0>>16)&0xff, (B0>>24)&0xff);
-    // printf("%02x%02x%02x%02x", C0&0xff, (C0>>8)&0xff, (C0>>16)&0xff, (C0>>24)&0xff);
-    // printf("%02x%02x%02x%02x\n", D0&0xff, (D0>>8)&0xff, (D0>>16)&0xff, (D0>>24)&0xff);
-    
-    // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
     if (g_flags.q != 1){
         write(1, "sha256 (", 9);
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
     }
+    printf("\n%02x%02x%02x%02x",h0&0xff, (h0>>8)&0xff, (h0>>16)&0xff, (h0>>24)&0xff);
+    printf("%02x%02x%02x%02x", h1&0xff, (h1>>8)&0xff, (h1>>16)&0xff, (h1>>24)&0xff);
+    printf("%02x%02x%02x%02x", h2&0xff, (h2>>8)&0xff, (h2>>16)&0xff, (h2>>24)&0xff);
+    printf("%02x%02x%02x%02x", h3&0xff, (h3>>8)&0xff, (h3>>16)&0xff, (h3>>24)&0xff);
+    printf("%02x%02x%02x%02x", h4&0xff, (h4>>8)&0xff, (h4>>16)&0xff, (h4>>24)&0xff);
+    printf("%02x%02x%02x%02x", h5&0xff, (h5>>8)&0xff, (h5>>16)&0xff, (h5>>24)&0xff);
+    printf("%02x%02x%02x%02x", h6&0xff, (h6>>8)&0xff, (h6>>16)&0xff, (h6>>24)&0xff);
+    printf("%02x%02x%02x%02x\n", h7&0xff, (h7>>8)&0xff, (h7>>16)&0xff, (h7>>24)&0xff);
+    
+    // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
     int rep = 0;
     u_int32_t ptr = h0;
     while (rep < 32){
