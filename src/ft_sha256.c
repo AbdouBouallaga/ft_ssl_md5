@@ -35,7 +35,46 @@ u_int32_t k[64] = {
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 //end of apple code
 
+void displaywords(char *x, unsigned int len)
+{
+    unsigned int i;
+    unsigned int j;
+    unsigned int K;
+    unsigned int w;
 
+
+    i = 0;
+    j = 0;
+    K = 0;
+    w = 0;
+    len = len * 4;
+    printf("w%2d ", w);
+    while (i < len)
+    {
+        j = 7;
+        while (1)
+        {
+            if (x[i] & (1 << j))
+                printf("1");
+            else
+                printf("0");
+            j--;
+            if (j == -1){
+                K++;
+                break;
+            }
+        }
+        i++;
+        if (K == 4){
+            w++;
+            printf("\n");
+            if (w < 64)
+                printf("w%2d ", w);
+            K = 0;
+        }
+    }
+    printf("\n");
+}
 
 static void process(u_int32_t *w)
 {
@@ -57,12 +96,14 @@ static void process(u_int32_t *w)
     u_int32_t maj;
     u_int32_t temp2;
 
-    u_int8_t i = 16;
+    uint16_t i = 15;
     while (++i < 64){
         s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
         s1 = (ROTR(w[i-2],17) ^ ROTR(w[i-2], 19) ^ (w[i-2] >> 10));
         w[i] = w[i-16] + s0 + w[i-7] + s1;
     }
+    displaywords((char *)w, 64);
+    printf("\n");
     i = -1;
     while (++i < 64){
         S1 = (ROTR(e, 6) ^ ROTR(e, 11) ^ ROTR(e,25));
@@ -156,27 +197,29 @@ int sha256(char *str, char *title)
     }
     printf("\n");
     printf("\n");
-    // displaybits(buffer, newlen+8);
+    displaybits(buffer, newlen+8);
     // Process message in 512 bit (16-word) blocks
     printf("\n");
-    u_int32_t m[64];
+    u_int32_t *m = malloc(sizeof(u_int32_t) * 64);
     i = 0;
     j = 0;
     int copy;
     int a,b;
     while(i < newlen+8){
-        // ft_bzero(m, 64);
+        ft_bzero(m, 64);
         j = -1;
         while (++j < 16){
             // m[j] = buffer[i+(j*4)];
             ft_memcpy(&m[j], buffer+i+(j*4), 4);
         }
-        displaybits(m, 16);
+        // displaybits((char *)m, 256);
+        printf("\n");
         // j = -1;
         // while (++j < 64){
         //     printf("%08x ", m[j]);
         // }
         // printf("\n");
+        displaywords((char *)m, 64);
         process(m);
         i+=64;
     }
