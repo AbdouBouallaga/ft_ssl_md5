@@ -68,12 +68,16 @@ void displaywords(char *x, unsigned int len)
         if (K == 4){
             w++;
             printf("\n");
-            if (w < 64)
+            if (w < len/4)
                 printf("w%2d ", w);
             K = 0;
         }
     }
     printf("\n");
+}
+
+unsigned rotr(unsigned x, unsigned n) {
+    return (x >> n % 32) | (x << (32-n) % 32);
 }
 
 static void process(u_int32_t *w)
@@ -87,6 +91,8 @@ static void process(u_int32_t *w)
     u_int32_t g = h6;
     u_int32_t h = h7;
 
+    u_int32_t *test = malloc(sizeof(u_int32_t));
+
     u_int32_t s0;
     u_int32_t s1;
     u_int32_t S1;
@@ -98,6 +104,13 @@ static void process(u_int32_t *w)
 
     uint16_t i = 15;
     while (++i < 64){
+        test[0] = w[i - 15];
+        printf("here\n");
+        displaywords(test, 1);
+        test[0] = ROTR(test[0], 7);
+        displaywords(test, 1);
+        printf("\n");
+        exit(1);
         s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
         s1 = (ROTR(w[i-2],17) ^ ROTR(w[i-2], 19) ^ (w[i-2] >> 10));
         w[i] = w[i-16] + s0 + w[i-7] + s1;
@@ -169,6 +182,16 @@ int sha256(char *str, char *title)
     ft_bzero(buffer, newlen+8);
     ft_memcpy(buffer, str, len);
     buffer[len] = 0x80; // 10000000
+    u_int32_t tet = 0x12345678;
+    // tet = htonl(tet);
+    printf("%x\n", (char)tet);
+    int deb = 0;
+    while (deb < newlen+8)
+    {
+        buffer[deb] = htonl(buffer[deb]);
+        printf("%x\n", (u_int32_t)buffer[deb]);
+        deb+=4;
+    }
     // printf(">>>> %s \n", buffer);
     // printf("64 bit l: \n");
     // ft_memcpy(buffer+newlen, *len, 8);

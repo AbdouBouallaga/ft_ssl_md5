@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <libkern/OSByteOrder.h>
 
+#include <arpa/inet.h> // little to big endian
+
 #define ROTL(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 #define ROTR(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
 
