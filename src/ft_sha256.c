@@ -35,7 +35,7 @@ u_int32_t k[64] = {
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 //end of apple code
 
-void displaywords(char *x, unsigned int len)
+void displaywords(u_int32_t *x, unsigned int len)
 {
     unsigned int i;
     unsigned int j;
@@ -47,11 +47,10 @@ void displaywords(char *x, unsigned int len)
     j = 0;
     K = 0;
     w = 0;
-    len = len * 4;
     printf("w%2d ", w);
     while (i < len)
     {
-        j = 7;
+        j = 31;
         while (1)
         {
             if (x[i] & (1 << j))
@@ -65,7 +64,7 @@ void displaywords(char *x, unsigned int len)
             }
         }
         i++;
-        if (K == 4){
+        if (K){
             w++;
             printf("\n");
             if (w < len/4)
@@ -78,6 +77,15 @@ void displaywords(char *x, unsigned int len)
 
 unsigned rotr(unsigned x, unsigned n) {
     return (x >> n % 32) | (x << (32-n) % 32);
+}
+
+int rightRotate(int n, unsigned int d)
+{
+   /* In n>>d, first d bits are 0. To put last 3 bits of at
+     first, do bitwise or of n>>d with n <<(INT_BITS - d) */
+//    return (n >> d)|(n << (32 - d));
+//    return (n >> d);
+   return (n << (30));
 }
 
 static void process(u_int32_t *w)
@@ -101,14 +109,16 @@ static void process(u_int32_t *w)
     u_int32_t S0;
     u_int32_t maj;
     u_int32_t temp2;
+    u_int32_t t = 64;
 
     uint16_t i = 15;
     while (++i < 64){
-        test[0] = w[i - 15];
-        printf("here\n");
-        displaywords(test, 1);
-        test[0] = ROTR(test[0], 7);
-        displaywords(test, 1);
+        // test[0] = w[i - 15];
+        displaywords(&t, 1);
+        // printf("here\n");
+        // displaywords(&w[i - 15], 1);
+        // test[0] = rightRotate(w[i - 15], 2);
+        // displaywords(test, 1);
         printf("\n");
         exit(1);
         s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
@@ -180,21 +190,19 @@ int sha256(char *str, char *title)
         return 1;
     }
     ft_bzero(buffer, newlen+8);
-    ft_memcpy(buffer, str, len);
-    buffer[len] = 0x80; // 10000000
-    u_int32_t tet = 0x12345678;
-    // tet = htonl(tet);
-    printf("%x\n", (char)tet);
+    u_int32_t *str2 = (u_int32_t *)str;
     int deb = 0;
-    while (deb < newlen+8)
-    {
-        buffer[deb] = htonl(buffer[deb]);
-        printf("%x\n", (u_int32_t)buffer[deb]);
-        deb+=4;
+    while(deb <= len/4){
+        str2[deb] = htonl(str2[deb]);
+        displaywords(&str2[deb], 1);
+        deb++;
     }
-    // printf(">>>> %s \n", buffer);
-    // printf("64 bit l: \n");
-    // ft_memcpy(buffer+newlen, *len, 8);
+    printf("len = %d\n", len);
+    printf("len = %f\n", ceil(len/4.9));
+    printf("newlen = %d\n", newlen);
+    ft_memcpy(buffer, str2, 1);
+    // buffer[len] = 0x80; // 10000000
+
 
     int i = 0; // count the bits
     int p = 63; // navigate through the 64 bits value
@@ -204,7 +212,7 @@ int sha256(char *str, char *title)
     while (1){ // set the 64 bits value of len in bits
         pow = power(2,p);
         if(pow <= messageBits_bak){
-            buffer[newlen+j] = buffer[newlen+j]|(1<<bit); // set the bit in the buffer to 1
+            buffer[newlen+7-j] = buffer[newlen+7-j]|(1<<bit); // set the bit in the buffer to 1
             messageBits_bak -= pow; // subtract the value of the bit from the messageBits
         }
         i++;
