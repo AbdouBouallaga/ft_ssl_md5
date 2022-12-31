@@ -67,7 +67,7 @@ void displaywords(u_int32_t *x, unsigned int len)
         if (K){
             w++;
             printf("\n");
-            if (w < len/4)
+            if (w < len)
                 printf("w%2d ", w);
             K = 0;
         }
@@ -113,44 +113,86 @@ static void process(u_int32_t *w)
 
     uint16_t i = 15;
     while (++i < 64){
-        // test[0] = w[i - 15];
-        displaywords(&t, 1);
-        // printf("here\n");
-        // displaywords(&w[i - 15], 1);
-        // test[0] = rightRotate(w[i - 15], 2);
-        // displaywords(test, 1);
+        test[0] = w[i - 15];
+        // displaywords(&t, 1);
+        printf("here\n");
+        displaywords(test, 1);
+        test[0] = ROTR(w[i - 15], 7);
+        displaywords(test, 1);
         printf("\n");
-        exit(1);
+        // exit(1);
         s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
+        // displaywords(&s0, 1);
         s1 = (ROTR(w[i-2],17) ^ ROTR(w[i-2], 19) ^ (w[i-2] >> 10));
+        // displaywords(&s1, 1);
         w[i] = w[i-16] + s0 + w[i-7] + s1;
+        // displaywords(&w[i], 1);
     }
     displaywords((char *)w, 64);
+    displaywords(&e, 1);
+
     printf("\n");
     i = -1;
     while (++i < 64){
         S1 = (ROTR(e, 6) ^ ROTR(e, 11) ^ ROTR(e,25));
+        // printf("S1 ");
+        // displaywords(&S1, 1);
         ch = ((e & f) ^ ((~e) & g));
-        temp1 = (h1 + S1 + ch + k[i] + w[i]);
+        // printf("ch ");
+        // displaywords(&ch, 1);
+        // printf("h1 ");
+        // displaywords(&h1, 1);
+        // printf("k[i] ");
+        // displaywords(&k[i], 1);
+        // printf("w[i] ");
+        // displaywords(&w[i], 1);
+        temp1 = (h + S1 + ch + k[i] + w[i]);
+        // printf("temp1 ");
+        // displaywords(&temp1, 1);
         S0 = (ROTR(a,2) ^ ROTR(a,13) ^ ROTR(a,22));
+        // printf("S0 ");
+        // displaywords(&S0, 1);
         maj = ((a & b) ^ (a & c) ^ (b & c));
+        // printf("maj ");
+        // displaywords(&maj, 1);
         temp2 = S0 + maj;
         h = g;
         g = f;
+        f = e;
         e = d + temp1;
         d = c;
         c = b;
         b = a;
         a = temp1 + temp2;
+        displaywords(&a, 1);
+        displaywords(&b, 1);
+        displaywords(&c, 1);
+        displaywords(&d, 1);
+        displaywords(&e, 1);
+        displaywords(&f, 1);
+        displaywords(&g, 1);
+        displaywords(&h, 1);
+        printf("<<<>>>\n");
+        // if (i == 2)
+        //     exit(1);
     }
     h0 += a;
+    displaywords(&h0, 1);
     h1 += b;
+    displaywords(&h1, 1);
     h2 += c;
+    displaywords(&h2, 1);
     h3 += d;
+    displaywords(&h3, 1);
     h4 += e;
+    displaywords(&h4, 1);
     h5 += f;
+    displaywords(&h5, 1);
     h6 += g;
+    displaywords(&h6, 1);
     h7 += h;
+    displaywords(&h7, 1);
+    // exit(1);
 }
 
 
@@ -191,17 +233,18 @@ int sha256(char *str, char *title)
     }
     ft_bzero(buffer, newlen+8);
     u_int32_t *str2 = (u_int32_t *)str;
-    int deb = 0;
-    while(deb <= len/4){
-        str2[deb] = htonl(str2[deb]);
-        displaywords(&str2[deb], 1);
-        deb++;
-    }
+    // int deb = 0;
+    // while(deb <= len/4){
+    //     str2[deb] = htonl(str2[deb]);
+    //     displaywords(&str2[deb], 1);
+    //     deb++;
+    // }
     printf("len = %d\n", len);
-    printf("len = %f\n", ceil(len/4.9));
+    printf("len = %f\n", ceil(len/4.0));
     printf("newlen = %d\n", newlen);
-    ft_memcpy(buffer, str2, 1);
-    // buffer[len] = 0x80; // 10000000
+    ft_memcpy(buffer, str, (ceil(len/4.0)*4));
+    // buffer[(int)(ceil(len/4.0)*4)] = 0x80; // 10000000
+    buffer[len] = 0x80; // 10000000
 
 
     int i = 0; // count the bits
@@ -212,7 +255,7 @@ int sha256(char *str, char *title)
     while (1){ // set the 64 bits value of len in bits
         pow = power(2,p);
         if(pow <= messageBits_bak){
-            buffer[newlen+7-j] = buffer[newlen+7-j]|(1<<bit); // set the bit in the buffer to 1
+            buffer[newlen+j] = buffer[newlen+j]|(1<<bit); // set the bit in the buffer to 1
             messageBits_bak -= pow; // subtract the value of the bit from the messageBits
         }
         i++;
@@ -229,6 +272,7 @@ int sha256(char *str, char *title)
     printf("\n");
     printf("\n");
     displaybits(buffer, newlen+8);
+
     // Process message in 512 bit (16-word) blocks
     printf("\n");
     u_int32_t *m = malloc(sizeof(u_int32_t) * 64);
@@ -242,6 +286,10 @@ int sha256(char *str, char *title)
         while (++j < 16){
             // m[j] = buffer[i+(j*4)];
             ft_memcpy(&m[j], buffer+i+(j*4), 4);
+            // printf("%x\n", m[j]);
+            m[j] = htonl(m[j]);
+            // printf("%x\n", m[j]);
+            // displaywords((char *)&m[j], 1);
         }
         // displaybits((char *)m, 256);
         printf("\n");
@@ -250,7 +298,7 @@ int sha256(char *str, char *title)
         //     printf("%08x ", m[j]);
         // }
         // printf("\n");
-        displaywords((char *)m, 64);
+        displaywords((char *)m, 16);
         process(m);
         i+=64;
     }
@@ -260,18 +308,18 @@ int sha256(char *str, char *title)
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
     }
-    printf("\n%02x%02x%02x%02x",h0&0xff, (h0>>8)&0xff, (h0>>16)&0xff, (h0>>24)&0xff);
-    printf("%02x%02x%02x%02x", h1&0xff, (h1>>8)&0xff, (h1>>16)&0xff, (h1>>24)&0xff);
-    printf("%02x%02x%02x%02x", h2&0xff, (h2>>8)&0xff, (h2>>16)&0xff, (h2>>24)&0xff);
-    printf("%02x%02x%02x%02x", h3&0xff, (h3>>8)&0xff, (h3>>16)&0xff, (h3>>24)&0xff);
-    printf("%02x%02x%02x%02x", h4&0xff, (h4>>8)&0xff, (h4>>16)&0xff, (h4>>24)&0xff);
-    printf("%02x%02x%02x%02x", h5&0xff, (h5>>8)&0xff, (h5>>16)&0xff, (h5>>24)&0xff);
-    printf("%02x%02x%02x%02x", h6&0xff, (h6>>8)&0xff, (h6>>16)&0xff, (h6>>24)&0xff);
-    printf("%02x%02x%02x%02x\n", h7&0xff, (h7>>8)&0xff, (h7>>16)&0xff, (h7>>24)&0xff);
+    // printf("\n%02x%02x%02x%02x",h0&0xff, (h0>>8)&0xff, (h0>>16)&0xff, (h0>>24)&0xff);
+    // printf("%02x%02x%02x%02x", h1&0xff, (h1>>8)&0xff, (h1>>16)&0xff, (h1>>24)&0xff);
+    // printf("%02x%02x%02x%02x", h2&0xff, (h2>>8)&0xff, (h2>>16)&0xff, (h2>>24)&0xff);
+    // printf("%02x%02x%02x%02x", h3&0xff, (h3>>8)&0xff, (h3>>16)&0xff, (h3>>24)&0xff);
+    // printf("%02x%02x%02x%02x", h4&0xff, (h4>>8)&0xff, (h4>>16)&0xff, (h4>>24)&0xff);
+    // printf("%02x%02x%02x%02x", h5&0xff, (h5>>8)&0xff, (h5>>16)&0xff, (h5>>24)&0xff);
+    // printf("%02x%02x%02x%02x", h6&0xff, (h6>>8)&0xff, (h6>>16)&0xff, (h6>>24)&0xff);
+    // printf("%02x%02x%02x%02x\n", h7&0xff, (h7>>8)&0xff, (h7>>16)&0xff, (h7>>24)&0xff);
     
     // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
     int rep = 0;
-    u_int32_t ptr = h0;
+    u_int32_t ptr = htonl(h0);
     while (rep < 32){
         u_int8_t buff = ptr&0xff;
         hex_dump(buff);
@@ -279,19 +327,19 @@ int sha256(char *str, char *title)
         rep++;
         if (rep % 4 == 0){
             if (rep == 4)
-                ptr = h1;
+                ptr = htonl(h1);
             if (rep == 8)
-                ptr = h2;
+                ptr = htonl(h2);
             if (rep == 12)
-                ptr = h3;
+                ptr = htonl(h3);
             if (rep == 16)
-                ptr = h4;
+                ptr = htonl(h4);
             if (rep == 20)
-                ptr = h5;
+                ptr = htonl(h5);
             if (rep == 24)
-                ptr = h6;
+                ptr = htonl(h6);
             if (rep == 28)
-                ptr = h7;
+                ptr = htonl(h7);
         }
     }
     write(1, "\n", 1);

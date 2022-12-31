@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <libkern/OSByteOrder.h>
+#include <math.h>
 
 #include <arpa/inet.h> // little to big endian
 

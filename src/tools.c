@@ -9,15 +9,15 @@ void displaybits(char *x, unsigned int len)
     j = 0;
     while (i < len)
     {
-        j = 0;
+        j = 7;
         while (1)
         {
             if (x[i] & (1 << j))
                 printf("1");
             else
                 printf("0");
-            j++;
-            if (j == 8)
+            j--;
+            if (j == -1)
                 break;
         }
         i++;
