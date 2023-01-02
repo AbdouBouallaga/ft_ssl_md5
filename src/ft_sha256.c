@@ -29,51 +29,7 @@ u_int32_t k[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-// From https://opensource.apple.com/source/ppp/ppp-37/ppp/pppd/md5.c.auto.html //
 
-/* ROTATE_LEFT rotates x left n bits */
-#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
-//end of apple code
-
-void displaywords(u_int32_t *x, unsigned int len)
-{
-    unsigned int i;
-    unsigned int j;
-    unsigned int K;
-    unsigned int w;
-
-
-    i = 0;
-    j = 0;
-    K = 0;
-    w = 0;
-    printf("w%2d ", w);
-    while (i < len)
-    {
-        j = 31;
-        while (1)
-        {
-            if (x[i] & (1 << j))
-                printf("1");
-            else
-                printf("0");
-            j--;
-            if (j == -1){
-                K++;
-                break;
-            }
-        }
-        i++;
-        if (K){
-            w++;
-            printf("\n");
-            if (w < len)
-                printf("w%2d ", w);
-            K = 0;
-        }
-    }
-    printf("\n");
-}
 
 unsigned rotr(unsigned x, unsigned n) {
     return (x >> n % 32) | (x << (32-n) % 32);
@@ -99,8 +55,6 @@ static void process(u_int32_t *w)
     u_int32_t g = h6;
     u_int32_t h = h7;
 
-    u_int32_t *test = malloc(sizeof(u_int32_t));
-
     u_int32_t s0;
     u_int32_t s1;
     u_int32_t S1;
@@ -113,48 +67,17 @@ static void process(u_int32_t *w)
 
     uint16_t i = 15;
     while (++i < 64){
-        test[0] = w[i - 15];
-        // displaywords(&t, 1);
-        printf("here\n");
-        displaywords(test, 1);
-        test[0] = ROTR(w[i - 15], 7);
-        displaywords(test, 1);
-        printf("\n");
-        // exit(1);
         s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
-        // displaywords(&s0, 1);
         s1 = (ROTR(w[i-2],17) ^ ROTR(w[i-2], 19) ^ (w[i-2] >> 10));
-        // displaywords(&s1, 1);
         w[i] = w[i-16] + s0 + w[i-7] + s1;
-        // displaywords(&w[i], 1);
     }
-    displaywords((char *)w, 64);
-    displaywords(&e, 1);
-
-    printf("\n");
     i = -1;
     while (++i < 64){
         S1 = (ROTR(e, 6) ^ ROTR(e, 11) ^ ROTR(e,25));
-        // printf("S1 ");
-        // displaywords(&S1, 1);
         ch = ((e & f) ^ ((~e) & g));
-        // printf("ch ");
-        // displaywords(&ch, 1);
-        // printf("h1 ");
-        // displaywords(&h1, 1);
-        // printf("k[i] ");
-        // displaywords(&k[i], 1);
-        // printf("w[i] ");
-        // displaywords(&w[i], 1);
         temp1 = (h + S1 + ch + k[i] + w[i]);
-        // printf("temp1 ");
-        // displaywords(&temp1, 1);
         S0 = (ROTR(a,2) ^ ROTR(a,13) ^ ROTR(a,22));
-        // printf("S0 ");
-        // displaywords(&S0, 1);
         maj = ((a & b) ^ (a & c) ^ (b & c));
-        // printf("maj ");
-        // displaywords(&maj, 1);
         temp2 = S0 + maj;
         h = g;
         g = f;
@@ -164,35 +87,15 @@ static void process(u_int32_t *w)
         c = b;
         b = a;
         a = temp1 + temp2;
-        displaywords(&a, 1);
-        displaywords(&b, 1);
-        displaywords(&c, 1);
-        displaywords(&d, 1);
-        displaywords(&e, 1);
-        displaywords(&f, 1);
-        displaywords(&g, 1);
-        displaywords(&h, 1);
-        printf("<<<>>>\n");
-        // if (i == 2)
-        //     exit(1);
     }
     h0 += a;
-    displaywords(&h0, 1);
     h1 += b;
-    displaywords(&h1, 1);
     h2 += c;
-    displaywords(&h2, 1);
     h3 += d;
-    displaywords(&h3, 1);
     h4 += e;
-    displaywords(&h4, 1);
     h5 += f;
-    displaywords(&h5, 1);
     h6 += g;
-    displaywords(&h6, 1);
     h7 += h;
-    displaywords(&h7, 1);
-    // exit(1);
 }
 
 
@@ -213,40 +116,21 @@ int sha256(char *str, char *title)
 
 
     len = ft_strlen(str);
-    // printf("len: %llu\n",len);
     messageBits = len * 8;
     messageBits_bak = messageBits;
-    // printf("messageBits: %llu\n",messageBits);
-    // displaybits((char *)str, len);
     unsigned int newlen = len;
     while (newlen % 64 != 56)
-    {
         newlen++;
-    }
-    // printf("newlen: %d\n",newlen);
     messageBits = newlen * 8;
     char *buffer = (char *)malloc(sizeof(char) * newlen+(8));
     if (buffer == NULL)
-    {
-        printf("Error: malloc failed");
-        return 1;
-    }
+        halt_and_catch_fire("Error: malloc failed");
     ft_bzero(buffer, newlen+8);
     u_int32_t *str2 = (u_int32_t *)str;
-    // int deb = 0;
-    // while(deb <= len/4){
-    //     str2[deb] = htonl(str2[deb]);
-    //     displaywords(&str2[deb], 1);
-    //     deb++;
-    // }
-    printf("len = %d\n", len);
-    printf("len = %f\n", ceil(len/4.0));
-    printf("newlen = %d\n", newlen);
     ft_memcpy(buffer, str, (ceil(len/4.0)*4));
-    // buffer[(int)(ceil(len/4.0)*4)] = 0x80; // 10000000
     buffer[len] = 0x80; // 10000000
 
-
+    
     int i = 0; // count the bits
     int p = 63; // navigate through the 64 bits value
     int j = 0; // navigate through the buffer blocks
@@ -269,13 +153,13 @@ int sha256(char *str, char *title)
         if (p == -1)
             break;
     }
-    printf("\n");
-    printf("\n");
-    displaybits(buffer, newlen+8);
 
+    if (g_flags.verbose == 1)
+        displaybits((char *)buffer, newlen+8, "HERE IS THE BUFFER");
     // Process message in 512 bit (16-word) blocks
-    printf("\n");
     u_int32_t *m = malloc(sizeof(u_int32_t) * 64);
+    if (m == NULL)
+        halt_and_catch_fire("Error: malloc failed");
     i = 0;
     j = 0;
     int copy;
@@ -284,21 +168,11 @@ int sha256(char *str, char *title)
         ft_bzero(m, 64);
         j = -1;
         while (++j < 16){
-            // m[j] = buffer[i+(j*4)];
             ft_memcpy(&m[j], buffer+i+(j*4), 4);
-            // printf("%x\n", m[j]);
             m[j] = htonl(m[j]);
-            // printf("%x\n", m[j]);
-            // displaywords((char *)&m[j], 1);
         }
-        // displaybits((char *)m, 256);
-        printf("\n");
-        // j = -1;
-        // while (++j < 64){
-        //     printf("%08x ", m[j]);
-        // }
-        // printf("\n");
-        displaywords((char *)m, 16);
+        if (g_flags.verbose == 1)
+            displaywords(m, 16, "HERE IS THE CURRENT BLOCK");
         process(m);
         i+=64;
     }
@@ -308,16 +182,6 @@ int sha256(char *str, char *title)
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
     }
-    // printf("\n%02x%02x%02x%02x",h0&0xff, (h0>>8)&0xff, (h0>>16)&0xff, (h0>>24)&0xff);
-    // printf("%02x%02x%02x%02x", h1&0xff, (h1>>8)&0xff, (h1>>16)&0xff, (h1>>24)&0xff);
-    // printf("%02x%02x%02x%02x", h2&0xff, (h2>>8)&0xff, (h2>>16)&0xff, (h2>>24)&0xff);
-    // printf("%02x%02x%02x%02x", h3&0xff, (h3>>8)&0xff, (h3>>16)&0xff, (h3>>24)&0xff);
-    // printf("%02x%02x%02x%02x", h4&0xff, (h4>>8)&0xff, (h4>>16)&0xff, (h4>>24)&0xff);
-    // printf("%02x%02x%02x%02x", h5&0xff, (h5>>8)&0xff, (h5>>16)&0xff, (h5>>24)&0xff);
-    // printf("%02x%02x%02x%02x", h6&0xff, (h6>>8)&0xff, (h6>>16)&0xff, (h6>>24)&0xff);
-    // printf("%02x%02x%02x%02x\n", h7&0xff, (h7>>8)&0xff, (h7>>16)&0xff, (h7>>24)&0xff);
-    
-    // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
     int rep = 0;
     u_int32_t ptr = htonl(h0);
     while (rep < 32){
@@ -343,7 +207,7 @@ int sha256(char *str, char *title)
         }
     }
     write(1, "\n", 1);
-    // u_int8_t buff = A0&0xff;
-    // hex_dump(buff);
+    free(buffer);
+    free(m);
     return(0);
 }

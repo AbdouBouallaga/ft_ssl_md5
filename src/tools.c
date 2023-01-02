@@ -1,15 +1,64 @@
 #include "../inc/ft_ssl.h"
 
-void displaybits(char *x, unsigned int len)
+void displaybits(char *x, unsigned int len, char *msg)
 {
     unsigned int i;
     unsigned int j;
+    unsigned int jump;
 
+    if (msg){
+        ft_putstr(msg);
+        ft_putchar('\n');
+    }
     i = 0;
     j = 0;
+    jump = 0;
     while (i < len)
     {
         j = 7;
+        while (1)
+        {
+            if (x[i] & (1 << j))
+                ft_putnbr(1);
+            else
+                ft_putnbr(0);
+            j--;
+            if (j == -1){
+                jump++;
+                break;
+            }
+        }
+        i++;
+        if (jump == 4){
+            ft_putchar('\n');
+            jump = 0;
+        }
+        else
+            ft_putchar(' ');
+    }
+    ft_putchar('\n');
+}
+
+void displaywords(u_int32_t *x, unsigned int len, char *msg)
+{
+    unsigned int i;
+    unsigned int j;
+    unsigned int K;
+    unsigned int w;
+
+
+    i = 0;
+    j = 0;
+    K = 0;
+    w = 0;
+    if (msg){
+        ft_putstr(msg);
+        ft_putchar('\n');
+    }
+    printf("w%2d ", w);
+    while (i < len)
+    {
+        j = 31;
         while (1)
         {
             if (x[i] & (1 << j))
@@ -17,11 +66,19 @@ void displaybits(char *x, unsigned int len)
             else
                 printf("0");
             j--;
-            if (j == -1)
+            if (j == -1){
+                K++;
                 break;
+            }
         }
         i++;
-        printf(" ");
+        if (K){
+            w++;
+            printf("\n");
+            if (w < len)
+                printf("w%2d ", w);
+            K = 0;
+        }
     }
     printf("\n");
 }
@@ -51,4 +108,18 @@ void    hex_dump(int ch)
         write(1, &a, 1);
         a = ch%16;
     }
+}
+
+void    halt_and_catch_fire(char *msg)
+{
+    ft_putstr(msg);
+    exit(1);
+}
+
+u_int32_t ROTL(u_int32_t x, u_int32_t n){
+    return((x) << (n) | ((x) >> (32 - (n))));
+}
+
+u_int32_t ROTR(u_int32_t x, u_int32_t n){
+    return((x) >> (n) | ((x) << (32 - (n))));
 }

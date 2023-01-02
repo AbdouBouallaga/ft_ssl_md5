@@ -7,30 +7,22 @@ void usage(char *str)
     printf("usage: %s [algo] [-s string] [files ...]", str);
     exit(0);
 }
-// void md5FromStdin(){
-//     char str[16];
-//     ft_bzero(str, 16);
-//     char *buffer;
-//     while (read(0, str, 16) > 0)
-//     {
-//         buffer = ft_strjoin(buffer, str);
-//     }
-//     buffer[ft_strlen(buffer) - 1] = '\0';
-//     md5(buffer);
-// }
 
-// void    stdinread(){
-    
-// }
-#include <sys/select.h>
+// #include <sys/select.h>
 void RUN(int ac ,char **av){
     int i = 2;
     int queueLen = 0;
-
-    char **queue = (char **)malloc(sizeof(char *));
+    
+    printf("START\n");
+    char **queue = (char **)malloc(sizeof(char *)* 1);
+    if (queue == NULL)
+        halt_and_catch_fire("Error: malloc failed");
+    printf("START1\n");
+    char *buffer = (char *)malloc(sizeof(char) * 1);
+    if (buffer == NULL)
+        halt_and_catch_fire("Error: malloc failed");
     char str[2];
     ft_bzero(str, 2);
-    char *buffer;
     int bufflen = 0;
     struct timeval tv = {0, 100000};
     fd_set readfds;
@@ -38,7 +30,6 @@ void RUN(int ac ,char **av){
     FD_ZERO(&readfds);
     FD_SET(0, &readfds);
     int ret = select(nfds, &readfds, NULL, NULL, &tv);
-    // printf("stdin %d\n", ret);
     while(av[i] && av[i][0] == '-' && i < ac){
         if (av[i][1] == 'q'){
             g_flags.q = 1;
@@ -52,23 +43,33 @@ void RUN(int ac ,char **av){
         else if (av[i][1] == 'r'){
             g_flags.r = 1;
         }
+        else if (av[i][1] == 'v'){
+            g_flags.verbose = 1;
+        }
         i++;
     }
     if (ret != 0){
+        printf("GET StdIN\n");
         int continueReaning = 1;
         while (continueReaning)
         {
-            continueReaning = read(0, str, 1);
-            buffer = (char *)realloc(buffer, sizeof(char)*(ft_strlen(str) + bufflen));
+            continueReaning = read(0, str, 16);
+            printf("poooo\n");
+            buffer = realloc(buffer, sizeof(char)*(ft_strlen(str) + bufflen));
+            printf("oups\n");
+
+            if (buffer == NULL)
+                halt_and_catch_fire("Error: malloc failed");
             if (buffer != NULL){
                 ft_strcat(buffer, str);
                 bufflen += continueReaning;
-                // printf("buffer len: %d\n", bufflen);
             }
         }
+        printf("out of loop\n");
         buffer[bufflen - 1] = '\0';
-        // printf("buffer len: %d\n", bufflen);
         queue = realloc(queue, (queueLen+2) * sizeof(char *));
+        if (queue == NULL)
+            halt_and_catch_fire("Error: malloc failed 1");
         queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
         ft_strcpy(queue[queueLen], buffer);
         if (g_flags.p == 1){
@@ -91,9 +92,9 @@ void RUN(int ac ,char **av){
     i = 2;
     while(av[i] && av[i][0] == '-' && i < ac){
         if (av[i][1] == 's'){
-            // printf("string len: %d\n", ft_strlen(av[i+1]));
-            // printf("queue len: %d\n", queueLen);
             queue = realloc(queue, (queueLen+2) * sizeof(char *));
+            if (queue == NULL)
+                halt_and_catch_fire("Error: malloc failed2");
             queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(av[i+1]));
             ft_strcpy(queue[queueLen], av[i+1]);
             queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(av[i+1])+3));
@@ -105,9 +106,6 @@ void RUN(int ac ,char **av){
         }
         i++;
     }
-    // generated
-    // printf("ac %d\n", ac);
-    // printf("i %d\n", i);
     while (i < ac){
         int fd = open(av[i], O_RDONLY);
         if (fd == -1){
@@ -122,13 +120,12 @@ void RUN(int ac ,char **av){
             if (buffer != NULL){
                 ft_strcat(buffer, str);
                 bufflen += continueReaning;
-                // printf("buffer len: %d\n", bufflen);
             }
         }
         buffer[bufflen - 1] = '\0';
-        // printf("buffer len: %d\n", ft_strlen(buffer));
         queue = realloc(queue, (queueLen+2) * sizeof(char *));
-        // printf("buffer %s", buffer);
+        if (queue == NULL)
+            halt_and_catch_fire("Error: malloc failed3");
         queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
         ft_strcpy(queue[queueLen], buffer);
         queue[queueLen+1] = (char *)malloc(sizeof(char) * (ft_strlen(av[i])+1));
