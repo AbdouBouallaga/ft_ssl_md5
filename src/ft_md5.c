@@ -110,30 +110,42 @@ static void process(u_int32_t *M)
 
 int md5(char *str, char *title)
 {
-    A0 = 0x67452301;
-    B0 = 0xefcdab89;
-    C0 = 0x98badcfe;
-    D0 = 0x10325476;
     unsigned long long len;
     unsigned long long temp;
     unsigned long long messageBits;
     unsigned long long messageBits_bak;
+    char *buffer;
+    int i;
+    int p;
+    int j;
+    int bit;
+    int copy;
+    int a,b;
+    int rep;
+    unsigned int newlen;
+    u_int64_t pow;
+    u_int32_t m[16];
+    u_int32_t ptr;
 
+    A0 = 0x67452301;
+    B0 = 0xefcdab89;
+    C0 = 0x98badcfe;
+    D0 = 0x10325476;
 
     len = ft_strlen(str);
     // printf("len: %llu\n",len);
     messageBits = len * 8;
     messageBits_bak = messageBits;
     // printf("messageBits: %llu\n",messageBits);
-    // displaybits((char *)str, len);
-    unsigned int newlen = len;
+    // displaybits((char *)str, len, "test");
+    newlen = len;
     while (newlen % 64 != 56)
     {
         newlen++;
     }
     // printf("newlen: %d\n",newlen);
     messageBits = newlen * 8;
-    char *buffer = (char *)malloc(sizeof(char) * newlen+(8));
+    buffer = (char *)malloc(sizeof(char) * newlen+(8));
     if (buffer == NULL)
     {
         printf("Error: malloc failed");
@@ -146,11 +158,10 @@ int md5(char *str, char *title)
     // printf("64 bit l: \n");
     // ft_memcpy(buffer+newlen, *len, 8);
 
-    int i = 0; // count the bits
-    int p = 63; // navigate through the 64 bits value
-    int j = 0; // navigate through the buffer blocks
-    int bit = 8; // set the bits in the buffer blocks
-    u_int64_t pow;
+    i = 0; // count the bits
+    p = 63; // navigate through the 64 bits value
+    j = 0; // navigate through the buffer blocks
+    bit = 8; // set the bits in the buffer blocks
     while (1){ // set the 64 bits value of len in bits
         pow = power(2,p);
         if(pow <= messageBits_bak){
@@ -169,14 +180,13 @@ int md5(char *str, char *title)
             break;
     }
     // printf("\n");
-    // displaybits(buffer, newlen+8);
+    if (g_flags.verbose)
+        displaybits(buffer, newlen+8, "buffer");
     // Process message in 512 bit (16-word) blocks
     // printf("\n");
-    u_int32_t m[16];
+    
     i = 0;
     j = 0;
-    int copy;
-    int a,b;
     while(i < newlen+8){
         j = -1;
         while (++j < 16){
@@ -203,8 +213,8 @@ int md5(char *str, char *title)
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
     }
-    int rep = 0;
-    u_int32_t ptr = A0;
+    rep = 0;
+    ptr = A0;
     while (rep < 16){
         u_int8_t buff = ptr&0xff;
         hex_dump(buff);
