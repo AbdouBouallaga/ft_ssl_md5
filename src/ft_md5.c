@@ -208,10 +208,14 @@ int md5(char *str, char *title)
     // printf("%02x%02x%02x%02x\n", D0&0xff, (D0>>8)&0xff, (D0>>16)&0xff, (D0>>24)&0xff);
     
     // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
-    if (g_flags.q != 1){
+    if (g_flags.q != 1 && g_flags.p != 1){
         write(1, "MD5 (", 5);
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
+    }
+    if (g_flags.p == 1){
+        write(1, title, ft_strlen(title));
+        write(1, "\n", 1);
     }
     rep = 0;
     ptr = A0;
@@ -228,6 +232,10 @@ int md5(char *str, char *title)
             if (rep == 12)
                 ptr = D0;
         }
+    }
+    if (g_flags.r){
+        write(1, " ", 1);
+        write(1, title, ft_strlen(title));
     }
     write(1, "\n", 1);
     // u_int8_t buff = A0&0xff;

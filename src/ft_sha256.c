@@ -177,10 +177,14 @@ int sha256(char *str, char *title)
         i+=64;
     }
 
-    if (g_flags.q != 1){
+    if (g_flags.q != 1 && g_flags.p != 1){
         write(1, "sha256 (", 9);
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
+    }
+    if (g_flags.p == 1){
+        write(1, title, ft_strlen(title));
+        write(1, "\n", 1);
     }
     int rep = 0;
     u_int32_t ptr = htonl(h0);
@@ -205,6 +209,10 @@ int sha256(char *str, char *title)
             if (rep == 28)
                 ptr = htonl(h7);
         }
+    }
+    if (g_flags.r){
+        write(1, " ", 1);
+        write(1, title, ft_strlen(title));
     }
     write(1, "\n", 1);
     free(buffer);

@@ -14,7 +14,8 @@ struct flags
     int p;
     int q;
     int r;
-    int verbose;
+    int verbose; // -s
+    int read_string;
 };
 
 void                displaybits(char *x, unsigned int len, char *msg);
@@ -26,5 +27,6 @@ void                hex_dump(int ch);
 void                halt_and_catch_fire(char *msg);
 u_int32_t           ROTL(u_int32_t x, u_int32_t n);
 u_int32_t           ROTR(u_int32_t x, u_int32_t n);
+
 
 #endif

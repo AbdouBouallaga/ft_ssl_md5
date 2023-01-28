@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "ft_ssl.h": "c"
+        "ft_ssl.h": "c",
+        "chrono": "c",
+        "complex": "c"
     }
 }
