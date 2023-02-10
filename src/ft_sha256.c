@@ -182,7 +182,7 @@ int sha256(char *str, char *title)
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
     }
-    if (g_flags.p == 1){
+    if (!g_flags.q && g_flags.p == 1){
         write(1, title, ft_strlen(title));
         write(1, "\n", 1);
     }
@@ -210,7 +210,7 @@ int sha256(char *str, char *title)
                 ptr = htonl(h7);
         }
     }
-    if (g_flags.r){
+    if (!g_flags.q && g_flags.r){
         write(1, " ", 1);
         write(1, title, ft_strlen(title));
     }

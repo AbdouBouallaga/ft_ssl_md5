@@ -103,7 +103,7 @@ void RUN(int ac, char **av)
     i = 2;
     while (i < ac && av[i] && av[i][0] == '-' && av[i][1] - 'p' < 5)
     {
-        if (av[i][1] == 's')
+        if (av[i][1] == 's' && av[i + 1] && av[i + 1][0] != '-')
         {
             queue = realloc(queue, (queueLen + 2) * sizeof(char *));
             if (queue == NULL)
