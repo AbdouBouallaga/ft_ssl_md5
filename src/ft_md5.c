@@ -208,13 +208,13 @@ int md5(char *str, char *title)
     // printf("%02x%02x%02x%02x\n", D0&0xff, (D0>>8)&0xff, (D0>>16)&0xff, (D0>>24)&0xff);
     
     // ,A0&0xff, (A0>>8)&0xff, (A0>>16)&0xff, (A0>>24)&0xff);
-    printf("flags q: %d, p: %d, r: %d\n", g_flags.q, g_flags.p, g_flags.r);
+    // printf("flags q: %d, p: %d, r: %d\n", g_flags.q, g_flags.p, g_flags.r);
     if (!g_flags.q && !g_flags.p){
         write(1, "MD5(", 4);
         write(1, title, ft_strlen(title));
         write(1, ")= ", 4);
     }
-    if (!g_flags.q && g_flags.p){
+    if (!g_flags.q && g_flags.p && g_flags.Stdin){ // -p
         write(1, title, ft_strlen(title));
         write(1, "\n", 1);
     }

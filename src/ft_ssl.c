@@ -13,7 +13,8 @@ Flags:\n\
 • -q, quiet mode\n\
 • -r, reverse the format of the output.\n\
 • -s, print the sum of the given string\n\
-• -t, God mode verbose\n", str);
+• -t, God mode verbose\n",
+           str);
     exit(0);
 }
 
@@ -32,29 +33,36 @@ void algo_sha256(char *str, char *title) { sha256(str, title); }
 // #include <sys/select.h>
 void RUN(int ac, char **av)
 {
+    char *buffer;
+    char **queue;
+    char str[2];
+
     void (*dispatch_flags[])() = {flag_p, flag_q, flag_r, flag_s, flag_t};
     void (*dispatch_algo[])(char *str, char *title) = {algo_md5, algo_sha256};
+
     int bufferLen = 1000;
+    int queueLenMalloc = 100;
     int i = 2;
     int queueLen = 0;
     int continueReaning;
-    FILE *fd;
     int selector;
     int offset;
-
-    char str[2];
-    ft_bzero(str, 2);
+    int ret;
     int bufflen = 0;
-    struct timeval tv = {0, 100000};
-    fd_set readfds;
     int nfds = 1;
+
+    FILE *fd;
+    fd_set readfds;
+    struct timeval tv = {0, 100000};
+
+    ft_bzero(str, 2);
     FD_ZERO(&readfds);
     FD_SET(0, &readfds);
-    int ret = select(nfds, &readfds, NULL, NULL, &tv);
-    char *buffer = (char *)malloc(sizeof(char) * bufferLen);
+    ret = select(nfds, &readfds, NULL, NULL, &tv);
+    buffer = (char *)malloc(sizeof(char) * bufferLen);
     if (buffer == NULL)
         halt_and_catch_fire("Error: malloc failed");
-    char **queue = (char **)malloc(sizeof(char *) * 1);
+    queue = (char **)malloc(sizeof(char *) * queueLenMalloc);
     if (queue == NULL)
         halt_and_catch_fire("Error: malloc failed");
     while (i < ac && av[i] && av[i][0] == '-' && av[i][1] - 'p' < 5)
@@ -64,6 +72,7 @@ void RUN(int ac, char **av)
     }
     if (ret != 0)
     {
+        g_flags.Stdin = 1;
         continueReaning = 1;
         while (continueReaning)
         {
@@ -82,11 +91,19 @@ void RUN(int ac, char **av)
             }
         }
         buffer[bufflen] = '\0';
-        queue = realloc(queue, (queueLen + 2) * sizeof(char *));
-        if (queue == NULL)
-            halt_and_catch_fire("Error: malloc failed 1");
+        if (queueLen > queueLenMalloc)
+        {
+            queue = realloc(queue, sizeof(char *) * (queueLen + 20));
+            queueLenMalloc = queueLen + 20;
+            if (queue == NULL)
+                halt_and_catch_fire("Error: malloc failed");
+        }
+        // queue = realloc(queue, (queueLen + 2) * sizeof(char *));
+        // if (queue == NULL)
+        //     halt_and_catch_fire("Error: malloc failed 1");
 
         queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
+        // ft_bzero(queue[queueLen], ft_strlen(buffer));
         ft_strcpy(queue[queueLen], buffer);
         if (g_flags.p == 1)
         {
@@ -102,11 +119,6 @@ void RUN(int ac, char **av)
             ft_strcpy(queue[queueLen + 1], "stdin");
             // ft_strcat(queue[queueLen + 1], "\n");
         }
-        // if (g_flags.p == 1 && g_flags.q == 1)
-        // {
-        //     write(1, buffer, ft_strlen(buffer));
-        //     write(1, "\0", 1);
-        // }
         queueLen += 2;
     }
     i = 2;
@@ -114,7 +126,14 @@ void RUN(int ac, char **av)
     {
         if (av[i][1] == 's' && av[i + 1] && av[i + 1][0] != '-')
         {
-            queue = realloc(queue, (queueLen + 2) * sizeof(char *));
+            if (queueLen > queueLenMalloc)
+            {
+                queue = realloc(queue, sizeof(char *) * (queueLen + 20));
+                queueLenMalloc = queueLen + 20;
+                if (queue == NULL)
+                    halt_and_catch_fire("Error: malloc failed");
+            }
+            // queue = realloc(queue, (queueLen + 2) * sizeof(char *));
             if (queue == NULL)
                 halt_and_catch_fire("Error: malloc failed2");
             queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(av[i + 1]));
@@ -130,7 +149,7 @@ void RUN(int ac, char **av)
     }
     while (i < ac)
     {
-        if ((fd = fopen(av[i], "r")) == NULL)
+        if ((fd = open(av[i], O_RDONLY)) == NULL)
         {
             printf("ft_ssl: %s: No such file or directory\n", av[i]);
             // exit(1);
@@ -140,7 +159,8 @@ void RUN(int ac, char **av)
             continueReaning = 1;
             while (continueReaning)
             {
-                continueReaning = fread(str, 1, 1, fd);
+                // continueReaning = fread(str, 1, 1, fd);
+                continueReaning = read(fd, str, 1);
                 if (bufflen + continueReaning > bufferLen)
                 {
                     buffer = realloc(buffer, sizeof(char) * (bufferLen + 1000));
@@ -154,12 +174,24 @@ void RUN(int ac, char **av)
                     bufflen += continueReaning;
                 }
             }
-            queue = realloc(queue, (queueLen + 2) * sizeof(char *));
+            if (queueLen > queueLenMalloc)
+            {
+                queue = realloc(queue, sizeof(char *) * (queueLen + 20));
+                queueLenMalloc = queueLen + 20;
+                if (queue == NULL)
+                    halt_and_catch_fire("Error: malloc failed");
+            }
+            // queue = realloc(queue, (queueLen + 2) * sizeof(char *));
             if (queue == NULL)
                 halt_and_catch_fire("Error: malloc failed3");
+
             queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
+            // displaybits(queue[queueLen], ft_strlen(buffer), "DEBUG AFTER MALLOC");
+            ft_bzero(queue[queueLen], ft_strlen(buffer) + 1); // Don't trust malloc to give you a zeroed out buffer
+            // displaybits(queue[queueLen], ft_strlen(buffer), "DEBUG AFTER BZERO");
             ft_strncpy(queue[queueLen], buffer, bufflen);
             queue[queueLen + 1] = (char *)malloc(sizeof(char) * (ft_strlen(av[i]) + 1));
+            ft_bzero(queue[queueLen + 1], ft_strlen(av[i]) + 2); // Don't trust malloc to give you a zeroed out buffer
             ft_strcpy(queue[queueLen + 1], av[i]);
             ft_strcat(queue[queueLen + 1], "\0");
             queueLen += 2;
@@ -174,6 +206,9 @@ void RUN(int ac, char **av)
         selector = queueLen - 2;
         offset = -1;
     }
+    // int qw = -1;
+    // while (++qw < queueLen)
+    //     displaybits(queue[qw], ft_strlen(queue[qw]) + 10, "queue DEBUG");
     while (i < queueLen)
     {
         dispatch_algo[g_flags.algo - 1](queue[abs(selector - i)], queue[abs(selector - (i + offset))]);

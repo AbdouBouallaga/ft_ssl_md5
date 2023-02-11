@@ -177,12 +177,12 @@ int sha256(char *str, char *title)
         i+=64;
     }
 
-    if (g_flags.q != 1 && g_flags.p != 1){
+    if (!g_flags.q && !g_flags.p){
         write(1, "sha256 (", 9);
         write(1, title, ft_strlen(title));
         write(1, ") = ", 5);
     }
-    if (!g_flags.q && g_flags.p == 1){
+    if (!g_flags.q && g_flags.p && g_flags.Stdin){
         write(1, title, ft_strlen(title));
         write(1, "\n", 1);
     }

@@ -5,7 +5,7 @@ SRC = ./src/ft_ssl.c\
 		./src/tools.c
 OBJ	= $(SRC:.c=.o)
 # CFLAGS	=-Wall -Wextra -Werror
-CFLAGS	= -O0
+CFLAGS	= 
 P_HEADER = ./inc/ft_ssl.h
 FT_LIB = ./libft/libft.a
 
