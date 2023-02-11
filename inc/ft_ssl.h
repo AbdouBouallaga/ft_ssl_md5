@@ -10,12 +10,13 @@
 
 struct flags
 {
-    int algo;
-    int p;
-    int q;
-    int r;
-    int verbose; // -s
-    int read_string;
+    short algo;
+    short p;
+    short q;
+    short r;
+    short verbose; // -s
+    short read_string;
+    short Stdin;
 };
 
 void                displaybits(char *x, unsigned int len, char *msg);

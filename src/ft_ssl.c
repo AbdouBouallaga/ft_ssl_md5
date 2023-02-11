@@ -4,7 +4,16 @@ struct flags g_flags;
 
 void usage(char *str)
 {
-    printf("usage: %s [algo] [-s string] [files ...]", str);
+    printf("usage: %s command [flags] [file/string]\n\n\
+Commands:\n\
+md5\n\
+sha256\n\n\
+Flags:\n\
+• -p, echo STDIN to STDOUT and append the checksum to STDOUT\n\
+• -q, quiet mode\n\
+• -r, reverse the format of the output.\n\
+• -s, print the sum of the given string\n\
+• -t, God mode verbose\n", str);
     exit(0);
 }
 
@@ -174,8 +183,9 @@ void RUN(int ac, char **av)
 
 int main(int ac, char **av)
 {
-    int i = 0;
+    int i = -1;
     char *algos[] = {"md5", "sha256", NULL};
+    g_flags.Stdin = 0;
     g_flags.p = 0;
     g_flags.q = 0;
     g_flags.r = 0;
@@ -183,15 +193,12 @@ int main(int ac, char **av)
     g_flags.read_string = 0;
     if (ac < 2)
         usage(av[0]);
-    while (algos[i])
-    {
+    while (algos[++i])
         if (ft_strcmp(av[1], algos[i]) == 0)
         {
             g_flags.algo = i + 1;
             break;
         }
-        i++;
-    }
     if (g_flags.algo == 0)
         usage(av[0]);
     RUN(ac, av);
