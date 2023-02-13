@@ -15,7 +15,6 @@ struct flags
     short q;
     short r;
     short verbose; // -s
-    short read_string;
     short Stdin;
 };
 

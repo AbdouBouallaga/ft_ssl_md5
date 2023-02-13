@@ -29,19 +29,18 @@ u_int32_t k[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-
-
-unsigned rotr(unsigned x, unsigned n) {
-    return (x >> n % 32) | (x << (32-n) % 32);
+unsigned rotr(unsigned x, unsigned n)
+{
+    return (x >> n % 32) | (x << (32 - n) % 32);
 }
 
 int rightRotate(int n, unsigned int d)
 {
-   /* In n>>d, first d bits are 0. To put last 3 bits of at
-     first, do bitwise or of n>>d with n <<(INT_BITS - d) */
-//    return (n >> d)|(n << (32 - d));
-//    return (n >> d);
-   return (n << (30));
+    /* In n>>d, first d bits are 0. To put last 3 bits of at
+      first, do bitwise or of n>>d with n <<(INT_BITS - d) */
+    //    return (n >> d)|(n << (32 - d));
+    //    return (n >> d);
+    return (n << (30));
 }
 
 static void process(u_int32_t *w)
@@ -66,17 +65,19 @@ static void process(u_int32_t *w)
     u_int32_t t = 64;
 
     uint16_t i = 15;
-    while (++i < 64){
-        s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i-15],18)) ^ (w[i-15] >> 3)));
-        s1 = (ROTR(w[i-2],17) ^ ROTR(w[i-2], 19) ^ (w[i-2] >> 10));
-        w[i] = w[i-16] + s0 + w[i-7] + s1;
+    while (++i < 64)
+    {
+        s0 = ((ROTR(w[i - 15], 7) ^ (ROTR(w[i - 15], 18)) ^ (w[i - 15] >> 3)));
+        s1 = (ROTR(w[i - 2], 17) ^ ROTR(w[i - 2], 19) ^ (w[i - 2] >> 10));
+        w[i] = w[i - 16] + s0 + w[i - 7] + s1;
     }
     i = -1;
-    while (++i < 64){
-        S1 = (ROTR(e, 6) ^ ROTR(e, 11) ^ ROTR(e,25));
+    while (++i < 64)
+    {
+        S1 = (ROTR(e, 6) ^ ROTR(e, 11) ^ ROTR(e, 25));
         ch = ((e & f) ^ ((~e) & g));
         temp1 = (h + S1 + ch + k[i] + w[i]);
-        S0 = (ROTR(a,2) ^ ROTR(a,13) ^ ROTR(a,22));
+        S0 = (ROTR(a, 2) ^ ROTR(a, 13) ^ ROTR(a, 22));
         maj = ((a & b) ^ (a & c) ^ (b & c));
         temp2 = S0 + maj;
         h = g;
@@ -98,7 +99,6 @@ static void process(u_int32_t *w)
     h7 += h;
 }
 
-
 int sha256(char *str, char *title)
 {
     h0 = 0x6a09e667;
@@ -114,7 +114,6 @@ int sha256(char *str, char *title)
     unsigned long long messageBits;
     unsigned long long messageBits_bak;
 
-
     len = ft_strlen(str);
     messageBits = len * 8;
     messageBits_bak = messageBits;
@@ -122,28 +121,30 @@ int sha256(char *str, char *title)
     while (newlen % 64 != 56)
         newlen++;
     messageBits = newlen * 8;
-    char *buffer = (char *)malloc(sizeof(char) * newlen+(8));
+    char *buffer = (char *)malloc(sizeof(char) * newlen + (8));
     if (buffer == NULL)
         halt_and_catch_fire("Error: malloc failed");
-    ft_bzero(buffer, newlen+8);
+    ft_bzero(buffer, newlen + 8);
     u_int32_t *str2 = (u_int32_t *)str;
-    ft_memcpy(buffer, str, (ceil(len/4.0)*4));
+    ft_memcpy(buffer, str, (ceil(len / 4.0) * 4));
     buffer[len] = 0x80; // 10000000
 
-    
-    int i = 0; // count the bits
-    int p = 63; // navigate through the 64 bits value
-    int j = 0; // navigate through the buffer blocks
+    int i = 0;   // count the bits
+    int p = 63;  // navigate through the 64 bits value
+    int j = 0;   // navigate through the buffer blocks
     int bit = 8; // set the bits in the buffer blocks
     u_int64_t pow;
-    while (1){ // set the 64 bits value of len in bits
-        pow = power(2,p);
-        if(pow <= messageBits_bak){
-            buffer[newlen+j] = buffer[newlen+j]|(1<<bit); // set the bit in the buffer to 1
-            messageBits_bak -= pow; // subtract the value of the bit from the messageBits
+    while (1)
+    { // set the 64 bits value of len in bits
+        pow = power(2, p);
+        if (pow <= messageBits_bak)
+        {
+            buffer[newlen + j] = buffer[newlen + j] | (1 << bit); // set the bit in the buffer to 1
+            messageBits_bak -= pow;                               // subtract the value of the bit from the messageBits
         }
         i++;
-        if (i == 8){
+        if (i == 8)
+        {
             i = 0;
             bit = 8;
             j++;
@@ -155,7 +156,7 @@ int sha256(char *str, char *title)
     }
 
     if (g_flags.verbose == 1)
-        displaybits((char *)buffer, newlen+8, "HERE IS THE BUFFER");
+        displaybits((char *)buffer, newlen + 8, "HERE IS THE BUFFER");
     // Process message in 512 bit (16-word) blocks
     u_int32_t *m = malloc(sizeof(u_int32_t) * 64);
     if (m == NULL)
@@ -163,37 +164,44 @@ int sha256(char *str, char *title)
     i = 0;
     j = 0;
     int copy;
-    int a,b;
-    while(i < newlen+8){
+    int a, b;
+    while (i < newlen + 8)
+    {
         ft_bzero(m, 64);
         j = -1;
-        while (++j < 16){
-            ft_memcpy(&m[j], buffer+i+(j*4), 4);
+        while (++j < 16)
+        {
+            ft_memcpy(&m[j], buffer + i + (j * 4), 4);
             m[j] = htonl(m[j]);
         }
         if (g_flags.verbose == 1)
             displaywords(m, 16, "HERE IS THE CURRENT BLOCK");
         process(m);
-        i+=64;
+        i += 64;
     }
 
-    if (!g_flags.q && !g_flags.p){
-        write(1, "sha256 (", 9);
+    if (!g_flags.q && !g_flags.p && !g_flags.r)
+    { // no flags
+        write(1, "sha256(", 7);
         write(1, title, ft_strlen(title));
-        write(1, ") = ", 5);
+        write(1, ")= ", 4);
     }
-    if (!g_flags.q && g_flags.p && g_flags.Stdin){
+    if (g_flags.p && g_flags.Stdin)
+    { // -p
         write(1, title, ft_strlen(title));
         write(1, "\n", 1);
+        g_flags.p = 0;
     }
     int rep = 0;
     u_int32_t ptr = htonl(h0);
-    while (rep < 32){
-        u_int8_t buff = ptr&0xff;
+    while (rep < 32)
+    {
+        u_int8_t buff = ptr & 0xff;
         hex_dump(buff);
-        ptr = ptr>>8;
+        ptr = ptr >> 8;
         rep++;
-        if (rep % 4 == 0){
+        if (rep % 4 == 0)
+        {
             if (rep == 4)
                 ptr = htonl(h1);
             if (rep == 8)
@@ -210,12 +218,15 @@ int sha256(char *str, char *title)
                 ptr = htonl(h7);
         }
     }
-    if (!g_flags.q && g_flags.r){
+    if (g_flags.r && !g_flags.q && !g_flags.Stdin)
+    {
         write(1, " ", 1);
         write(1, title, ft_strlen(title));
     }
+    if (g_flags.Stdin)
+        g_flags.Stdin = 0;
     write(1, "\n", 1);
     free(buffer);
     free(m);
-    return(0);
+    return (0);
 }
