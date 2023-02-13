@@ -34,15 +34,6 @@ unsigned rotr(unsigned x, unsigned n)
     return (x >> n % 32) | (x << (32 - n) % 32);
 }
 
-int rightRotate(int n, unsigned int d)
-{
-    /* In n>>d, first d bits are 0. To put last 3 bits of at
-      first, do bitwise or of n>>d with n <<(INT_BITS - d) */
-    //    return (n >> d)|(n << (32 - d));
-    //    return (n >> d);
-    return (n << (30));
-}
-
 static void process(u_int32_t *w)
 {
     u_int32_t a = h0;
@@ -62,7 +53,6 @@ static void process(u_int32_t *w)
     u_int32_t S0;
     u_int32_t maj;
     u_int32_t temp2;
-    u_int32_t t = 64;
 
     uint16_t i = 15;
     while (++i < 64)
@@ -110,7 +100,6 @@ int sha256(char *str, char *title)
     h6 = 0x1f83d9ab;
     h7 = 0x5be0cd19;
     unsigned long long len;
-    unsigned long long temp;
     unsigned long long messageBits;
     unsigned long long messageBits_bak;
 
@@ -125,11 +114,10 @@ int sha256(char *str, char *title)
     if (buffer == NULL)
         halt_and_catch_fire("Error: malloc failed");
     ft_bzero(buffer, newlen + 8);
-    u_int32_t *str2 = (u_int32_t *)str;
     ft_memcpy(buffer, str, (ceil(len / 4.0) * 4));
     buffer[len] = 0x80; // 10000000
 
-    int i = 0;   // count the bits
+    unsigned int i = 0;   // count the bits
     int p = 63;  // navigate through the 64 bits value
     int j = 0;   // navigate through the buffer blocks
     int bit = 8; // set the bits in the buffer blocks
@@ -163,8 +151,6 @@ int sha256(char *str, char *title)
         halt_and_catch_fire("Error: malloc failed");
     i = 0;
     j = 0;
-    int copy;
-    int a, b;
     while (i < newlen + 8)
     {
         ft_bzero(m, 64);

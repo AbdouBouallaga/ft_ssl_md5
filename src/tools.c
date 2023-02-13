@@ -3,10 +3,11 @@
 void displaybits(char *x, unsigned int len, char *msg)
 {
     unsigned int i;
-    unsigned int j;
+    int j;
     unsigned int jump;
 
-    if (msg){
+    if (msg)
+    {
         ft_putstr(msg);
         ft_putchar('\n');
     }
@@ -23,13 +24,15 @@ void displaybits(char *x, unsigned int len, char *msg)
             else
                 ft_putnbr(0);
             j--;
-            if (j == -1){
+            if (j == -1)
+            {
                 jump++;
                 break;
             }
         }
         i++;
-        if (jump == 4){
+        if (jump == 4)
+        {
             ft_putchar('\n');
             jump = 0;
         }
@@ -42,16 +45,16 @@ void displaybits(char *x, unsigned int len, char *msg)
 void displaywords(u_int32_t *x, unsigned int len, char *msg)
 {
     unsigned int i;
-    unsigned int j;
+    int j;
     unsigned int K;
     unsigned int w;
-
 
     i = 0;
     j = 0;
     K = 0;
     w = 0;
-    if (msg){
+    if (msg)
+    {
         ft_putstr(msg);
         ft_putchar('\n');
     }
@@ -66,13 +69,15 @@ void displaywords(u_int32_t *x, unsigned int len, char *msg)
             else
                 printf("0");
             j--;
-            if (j == -1){
+            if (j == -1)
+            {
                 K++;
                 break;
             }
         }
         i++;
-        if (K){
+        if (K)
+        {
             w++;
             printf("\n");
             if (w < len)
@@ -96,30 +101,33 @@ unsigned long long power(int i, int j)
     return (result);
 }
 
-void    hex_dump(int ch)
+void hex_dump(int ch)
 {
-    int a = ch/16;
+    int a = ch / 16;
     int i = -1;
-    while (++i < 2){
+    while (++i < 2)
+    {
         if (a < 10)
             a = '0' + a;
         else
             a = 'a' + a - 10;
         write(1, &a, 1);
-        a = ch%16;
+        a = ch % 16;
     }
 }
 
-void    halt_and_catch_fire(char *msg)
+void halt_and_catch_fire(char *msg)
 {
     ft_putstr(msg);
     exit(1);
 }
 
-u_int32_t ROTL(u_int32_t x, u_int32_t n){
-    return((x) << (n) | ((x) >> (32 - (n))));
+u_int32_t ROTL(u_int32_t x, u_int32_t n)
+{
+    return ((x) << (n) | ((x) >> (32 - (n))));
 }
 
-u_int32_t ROTR(u_int32_t x, u_int32_t n){
-    return((x) >> (n) | ((x) << (32 - (n))));
+u_int32_t ROTR(u_int32_t x, u_int32_t n)
+{
+    return ((x) >> (n) | ((x) << (32 - (n))));
 }
