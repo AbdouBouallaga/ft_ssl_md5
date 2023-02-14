@@ -102,6 +102,7 @@ int sha256(char *str, char *title)
     unsigned long long len;
     unsigned long long messageBits;
     unsigned long long messageBits_bak;
+    u_int8_t buff;
 
     len = ft_strlen(str);
     messageBits = len * 8;
@@ -114,7 +115,7 @@ int sha256(char *str, char *title)
     if (buffer == NULL)
         halt_and_catch_fire("Error: malloc failed");
     ft_bzero(buffer, newlen + 8);
-    ft_memcpy(buffer, str, (ceil(len / 4.0) * 4));
+    ft_memcpy(buffer, str, len);
     buffer[len] = 0x80; // 10000000
 
     unsigned int i = 0;   // count the bits
@@ -182,7 +183,7 @@ int sha256(char *str, char *title)
     u_int32_t ptr = htonl(h0);
     while (rep < 32)
     {
-        u_int8_t buff = ptr & 0xff;
+        buff = ptr;
         hex_dump(buff);
         ptr = ptr >> 8;
         rep++;

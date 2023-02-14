@@ -102,6 +102,7 @@ int md5(char *str, char *title)
     u_int64_t pow;
     u_int32_t m[16];
     u_int32_t ptr;
+    u_int8_t buff;
 
     A0 = 0x67452301;
     B0 = 0xefcdab89;
@@ -188,7 +189,7 @@ int md5(char *str, char *title)
     ptr = A0;
     while (rep < 16)
     {
-        u_int8_t buff = ptr & 0xff;
+        buff = ptr;
         hex_dump(buff);
         ptr = ptr >> 8;
         rep++;

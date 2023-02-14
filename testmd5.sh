@@ -1,5 +1,4 @@
-printf '\n\n'
-printf '\necho "42 is nice" | openssl md5\n'
+printf 'echo "42 is nice" | openssl md5\n'
 echo "42 is nice" | openssl md5
 printf '\necho "42 is nice" | ./ft_ssl md5\n'
 echo "42 is nice" | ./ft_ssl md5
@@ -28,3 +27,4 @@ echo "one more thing" | ./ft_ssl md5 -r -p -s "foo" file -s "bar"
 printf '\necho "just to be extra clear" | ./ft_ssl md5 -r -q -p -s "foo" file\n'
 echo "just to be extra clear" | ./ft_ssl md5 -r -q -p -s "foo" file
 rm file
+printf '\n'

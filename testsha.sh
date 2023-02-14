@@ -1,5 +1,4 @@
-printf '\n\n'
-printf '\necho "42 is nice" | openssl sha256\n'
+printf 'echo "42 is nice" | openssl sha256\n'
 echo "42 is nice" | openssl sha256
 printf '\necho "42 is nice" | ./ft_ssl sha256\n'
 echo "42 is nice" | ./ft_ssl sha256
@@ -28,3 +27,4 @@ echo "one more thing" | ./ft_ssl sha256 -r -p -s "foo" file -s "bar"
 printf '\necho "just to be extra clear" | ./ft_ssl sha256 -r -q -p -s "foo" file\n'
 echo "just to be extra clear" | ./ft_ssl sha256 -r -q -p -s "foo" file
 rm file
+printf '\n'

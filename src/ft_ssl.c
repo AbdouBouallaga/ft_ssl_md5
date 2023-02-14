@@ -100,7 +100,7 @@ void RUN(int ac, char **av)
         ft_strcpy(queue[queueLen], buffer);
         if (g_flags.p == 1)
         {
-            queue[queueLen + 1] = (char *)malloc(sizeof(char) * (ft_strlen(buffer) + 3));
+            queue[queueLen + 1] = (char *)malloc(sizeof(char) * (ft_strlen(buffer)));
 
             if (buffer[bufflen - 1] == '\n')
                 buffer[bufflen - 1] = '\0';
@@ -170,7 +170,7 @@ void RUN(int ac, char **av)
                     halt_and_catch_fire("Error: malloc failed");
             }
             queue[queueLen] = (char *)malloc(sizeof(char) * ft_strlen(buffer));
-            // ft_bzero(queue[queueLen], ft_strlen(buffer) + 1);
+            ft_bzero(queue[queueLen], ft_strlen(buffer) + 1); //IDK why but it works
             ft_strncpy(queue[queueLen], buffer, bufflen);
             queue[queueLen + 1] = (char *)malloc(sizeof(char) * (ft_strlen(av[i])));
             // ft_bzero(queue[queueLen + 1], ft_strlen(av[i]) + 2);
